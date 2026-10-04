@@ -31,6 +31,9 @@ const LINE: Record<Position, Line> = {
 const ATTACK_WEIGHT: Record<Line, number> = { G: 0, D: 0.5, M: 2, F: 3 };
 const DEFENCE_WEIGHT: Record<Line, number> = { G: 3, D: 2, M: 1, F: 0 };
 const SCORER_WEIGHT: Record<Line, number> = { G: 0, D: 0.1, M: 0.45, F: 1 };
+/** Share of goals with an assist, roughly the real Premier League rate. */
+const ASSIST_RATE = 0.75;
+const ASSIST_WEIGHT: Record<Line, number> = { G: 0.03, D: 0.45, M: 1, F: 0.8 };
 
 export interface TeamSheet {
   name: string;
@@ -113,6 +116,9 @@ export interface Goal {
   minute: number;
   scorer: string;
   scorerKey: string;
+  /** Who set it up, if anyone. */
+  assister: string | null;
+  assisterKey: string | null;
 }
 
 export interface MatchResult {
@@ -132,7 +138,23 @@ function scorer(team: TeamSheet, rng: Rng): Player {
   return rng.weighted(team.xi, (p) => SCORER_WEIGHT[p.line] * (0.15 + p.player.goalsPer90)).player;
 }
 
-export function playMatch(teams: TeamSheet[], home: number, away: number, rng: Rng): MatchResult {
+function assister(team: TeamSheet, scorerKey: string, rng: Rng): Player | null {
+  if (rng.next() >= ASSIST_RATE) return null;
+  const others = team.xi.filter((p) => p.player.key !== scorerKey);
+  return rng.weighted(others, (p) => ASSIST_WEIGHT[p.line] * (0.1 + p.player.assistsPer90)).player;
+}
+
+/**
+ * Assists use their own random stream, so adding them didn't change any scores
+ * or scorers from earlier replay links.
+ */
+export function playMatch(
+  teams: TeamSheet[],
+  home: number,
+  away: number,
+  rng: Rng,
+  assistRng: Rng = rng,
+): MatchResult {
   const h = teams[home]!;
   const a = teams[away]!;
   const homeGoals = rng.poisson(expectedGoals(h, a, true));
@@ -141,7 +163,12 @@ export function playMatch(teams: TeamSheet[], home: number, away: number, rng: R
   for (const [team, count] of [[home, homeGoals], [away, awayGoals]] as const) {
     for (let g = 0; g < count; g++) {
       const p = scorer(teams[team]!, rng);
-      goals.push({ team, minute: 1 + rng.int(90), scorer: p.name, scorerKey: p.key });
+      const minute = 1 + rng.int(90);
+      const a = assister(teams[team]!, p.key, assistRng);
+      goals.push({
+        team, minute, scorer: p.name, scorerKey: p.key,
+        assister: a?.name ?? null, assisterKey: a?.key ?? null,
+      });
     }
   }
   goals.sort((x, y) => x.minute - y.minute);
@@ -170,6 +197,13 @@ export interface ScorerRow {
   goals: number;
 }
 
+export interface AssistRow {
+  key: string;
+  name: string;
+  team: number;
+  assists: number;
+}
+
 export type Badge = "perfect" | "invincibles" | "champions" | "centurions" | "100-goals" | "icon-winner";
 
 export interface SeasonResult {
@@ -180,12 +214,14 @@ export interface SeasonResult {
   matchdays: MatchResult[][];
   table: TableRow[];
   topScorers: ScorerRow[];
+  topAssists: AssistRow[];
   user: {
     team: number;
     position: number;
     row: TableRow;
     playerOfSeason: { key: string; name: string; goals: number };
     topScorer: ScorerRow | null;
+    topAssister: AssistRow | null;
     badges: Badge[];
   };
 }
@@ -207,8 +243,9 @@ export function simulateSeason(
   );
   const user = teams.findIndex((t) => t.isUser);
 
+  const assistRng = createRng(`${seed}:assists`);
   const matchdays = fixtures(teams.length, rng).map((round) =>
-    round.map(([h, a]) => playMatch(teams, h, a, rng)),
+    round.map(([h, a]) => playMatch(teams, h, a, rng, assistRng)),
   );
 
   const table: TableRow[] = teams.map((t, i) => ({
@@ -216,6 +253,7 @@ export function simulateSeason(
     played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0,
   }));
   const scorers = new Map<string, ScorerRow>();
+  const assisters = new Map<string, AssistRow>();
   const cleanSheets = new Array<number>(teams.length).fill(0);
   for (const m of matchdays.flat()) {
     const record = (team: number, gf: number, ga: number) => {
@@ -234,6 +272,11 @@ export function simulateSeason(
       const row = scorers.get(g.scorerKey) ?? { key: g.scorerKey, name: g.scorer, team: g.team, goals: 0 };
       row.goals++;
       scorers.set(g.scorerKey, row);
+      if (g.assisterKey) {
+        const a = assisters.get(g.assisterKey) ?? { key: g.assisterKey, name: g.assister!, team: g.team, assists: 0 };
+        a.assists++;
+        assisters.set(g.assisterKey, a);
+      }
     }
   }
 
@@ -245,14 +288,16 @@ export function simulateSeason(
       a.name.localeCompare(b.name),
   );
   const topScorers = [...scorers.values()].sort((a, b) => b.goals - a.goals || a.name.localeCompare(b.name));
+  const topAssists = [...assisters.values()].sort((a, b) => b.assists - a.assists || a.name.localeCompare(b.name));
   const row = table[user]!;
   const position = sorted.indexOf(row) + 1;
 
-  // Player of the season: effective rating plus goals, and clean sheets for the back line.
+  // Player of the season: effective rating plus goals and assists, and clean sheets for the back line.
   const goalsOf = (key: string) => scorers.get(key)?.goals ?? 0;
+  const assistsOf = (key: string) => assisters.get(key)?.assists ?? 0;
   const pots = [...teams[user]!.xi].sort((a, b) => {
     const score = (p: TeamSheet["xi"][number]) =>
-      p.effective + 0.4 * goalsOf(p.player.key) +
+      p.effective + 0.4 * goalsOf(p.player.key) + 0.3 * assistsOf(p.player.key) +
       (p.line === "G" || p.line === "D" ? 0.25 * cleanSheets[user]! : 0);
     return score(b) - score(a);
   })[0]!.player;
@@ -272,12 +317,14 @@ export function simulateSeason(
     matchdays,
     table: sorted,
     topScorers,
+    topAssists,
     user: {
       team: user,
       position,
       row,
       playerOfSeason: { key: pots.key, name: pots.name, goals: goalsOf(pots.key) },
       topScorer: topScorers.find((s) => s.team === user) ?? null,
+      topAssister: topAssists.find((s) => s.team === user) ?? null,
       badges,
     },
   };

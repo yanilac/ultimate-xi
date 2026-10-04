@@ -69,6 +69,19 @@ export const FORMATIONS: Formation[] = [
      lm-lcm lcm-rcm rcm-rm lm-ls lcm-ls rcm-rs rm-rs ls-rs`,
   ),
   define(
+    "4-1-2-1-2",
+    {
+      gk: ["GK", 50, 5],
+      lb: ["LB", 15, 25], lcb: ["CB", 37, 20], rcb: ["CB", 63, 20], rb: ["RB", 85, 25],
+      cdm: ["CDM", 50, 38],
+      lcm: ["CM", 27, 53], rcm: ["CM", 73, 53],
+      cam: ["CAM", 50, 66],
+      ls: ["ST", 36, 86], rs: ["ST", 64, 86],
+    },
+    `gk-lcb gk-rcb lb-lcb lcb-rcb rcb-rb lcb-cdm rcb-cdm lb-lcm rb-rcm
+     cdm-lcm cdm-rcm lcm-cam rcm-cam lcm-ls rcm-rs cam-ls cam-rs ls-rs`,
+  ),
+  define(
     "4-2-4",
     {
       gk: ["GK", 50, 5],

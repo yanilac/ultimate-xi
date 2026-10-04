@@ -23,6 +23,8 @@ export interface Player {
   icon: boolean;
   /** Real league goals per 90 that season, used to pick scorers. */
   goalsPer90: number;
+  /** Real league assists per 90 that season, used to pick who set up a goal. */
+  assistsPer90: number;
   apps: number;
   goals: number;
   assists: number;

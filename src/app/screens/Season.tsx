@@ -66,6 +66,7 @@ function UserMatch({ result, match, week }: { result: SeasonResult; match: Match
         {match.goals.map((g, i) => (
           <li key={i} className={g.team === user ? "match__scorer--user" : ""}>
             {g.minute}′ {g.scorer}
+            {g.assister && <span className="match__assist"> ({g.assister})</span>}
           </li>
         ))}
       </ul>

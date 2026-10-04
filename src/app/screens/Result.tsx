@@ -77,10 +77,38 @@ export function Result({
       )}
       <dl className="awards">
         <div><dt>Player of the season</dt><dd>{user.playerOfSeason.name}</dd></div>
-        {user.topScorer && <div><dt>Your top scorer</dt><dd>{user.topScorer.name} ({user.topScorer.goals})</dd></div>}
-        {result.topScorers[0] && (
-          <div><dt>Golden Boot</dt><dd>{result.topScorers[0].name}, {result.teams[result.topScorers[0].team]!.name} ({result.topScorers[0].goals})</dd></div>
-        )}
+        {(() => {
+          const boot = result.topScorers[0];
+          const bootIsYours = boot && boot.team === user.team;
+          const assistKing = result.topAssists[0];
+          const assistKingIsYours = assistKing && assistKing.team === user.team;
+          return (
+            <>
+              {boot && (
+                <div>
+                  <dt>Golden Boot (league top scorer)</dt>
+                  <dd>
+                    {boot.name}, {bootIsYours ? "your XI" : result.teams[boot.team]!.name} ({boot.goals})
+                  </dd>
+                </div>
+              )}
+              {user.topScorer && !bootIsYours && (
+                <div><dt>Your XI's top scorer</dt><dd>{user.topScorer.name} ({user.topScorer.goals})</dd></div>
+              )}
+              {assistKing && (
+                <div>
+                  <dt>Most assists (league)</dt>
+                  <dd>
+                    {assistKing.name}, {assistKingIsYours ? "your XI" : result.teams[assistKing.team]!.name} ({assistKing.assists})
+                  </dd>
+                </div>
+              )}
+              {user.topAssister && !assistKingIsYours && (
+                <div><dt>Your XI's most assists</dt><dd>{user.topAssister.name} ({user.topAssister.assists})</dd></div>
+              )}
+            </>
+          );
+        })()}
       </dl>
       <div className="result__actions">
         <button className="btn btn--primary btn--big" onClick={share}>Share result</button>

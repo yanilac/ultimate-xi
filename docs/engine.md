@@ -4,7 +4,7 @@ The engine is plain TypeScript in `src/engine/`, with no UI code, so it can be t
 
 | Module | What it does |
 |---|---|
-| `formations.ts` | The 7 formations, each with exact slot positions, pitch coordinates and chemistry links |
+| `formations.ts` | The 8 formations, each with exact slot positions, pitch coordinates and chemistry links |
 | `positions.ts` | Which slots a player can fill: main position 100%, other listed positions or near neighbours (LB↔LWB, RM↔RW, CF↔ST) 97.5% |
 | `icons.ts` | The 48 approved Icons, generated from `docs/icons.md` |
 | `chemistry.ts` | Links, player chemistry (0 to 10), team chemistry (0 to 100) and effective ratings |
@@ -40,7 +40,8 @@ The engine is plain TypeScript in `src/engine/`, with no UI code, so it can be t
   - Defence weights: keeper 3, defenders 2, midfielders 1.
 - **Goals:** each side's goals are a Poisson draw with mean `1.25 × exp(0.55 × (attack − opponent defence) / 10 ± 0.12 home advantage)`.
 - **Scorers:** goals go to players weighted by line and their real goals per 90 that season, for both your team and opponents.
-- **Awards:** the result gives the final table, top scorers, your player of the season and badges: perfect season, Invincibles, champions, centurions, 100 goals, and winning with an Icon.
+- **Assists:** about 75% of goals get an assist from a team-mate, weighted by line and their real assists per 90. Assists use their own random stream, so they did not change any earlier scores or scorers.
+- **Awards:** the result gives the final table, top scorers, most assists, your player of the season and badges: perfect season, Invincibles, champions, centurions, 100 goals, and winning with an Icon.
 
 ## Tuning
 
