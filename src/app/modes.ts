@@ -21,8 +21,8 @@ export const MODES: ModeInfo[] = [
   },
   {
     id: "pl",
-    name: "Premier League history",
-    short: "PL history",
+    name: "Premier League draft",
+    short: "PL draft",
     blurb: "Every Premier League season since 1992. Mix eras in one XI and play a season from any year.",
     dataPath: "data/",
   },

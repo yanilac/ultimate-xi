@@ -69,16 +69,7 @@ export function Result({
       await navigator.clipboard?.writeText(`${text} ${link}`);
       setStatus("Image saved and link copied.");
     } catch (e) {
-      if ((e as Error).name !== "AbortError") setStatus("Couldn't share. Try copying the link instead.");
-    }
-  };
-
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(link);
-      setStatus("Link copied.");
-    } catch {
-      setStatus(link);
+      if ((e as Error).name !== "AbortError") setStatus("Couldn't share right now. Try again.");
     }
   };
 
@@ -122,9 +113,10 @@ export function Result({
       </div>
       {board && <LeaderboardName {...board} onView={onBoard} />}
       <div className="result__actions">
-        <button className="btn btn--primary btn--big" onClick={share}>Share result</button>
-        <button className="btn btn--ghost" onClick={copy}>Copy replay link</button>
-        <button className="btn btn--ghost" onClick={onAgain}>Build another XI</button>
+        <div className="result__pair">
+          <button className="btn btn--primary btn--big" onClick={onAgain}>Build another XI</button>
+          <button className="btn btn--ghost btn--big" onClick={share}>Share result</button>
+        </div>
         <button className="btn btn--ghost" onClick={onHome}>🏠 Home</button>
       </div>
       {status && <p className="hint" role="status">{status}</p>}

@@ -65,7 +65,7 @@ The match model matches real Premier League seasons. With the Generous setting, 
 ## Modes
 
 - **Top 5 leagues** (default): current-season cards from the Premier League, LaLiga, Serie A, Bundesliga and Ligue 1 (`public/data/top5/`, built by `pipeline/build_current.py`). The season sim picks one of the five leagues at random. `npm run tune -- 300 top5` tunes it.
-- **Premier League history**: every season since 1992 (`public/data/`).
+- **Premier League draft**: every season since 1992 (`public/data/`).
 
 Top 5 season keys name the league (`2026-27 LaLiga`), which is how replay links and the app tell the modes apart. Each mode keeps its own record of titles and streaks.
 
