@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Lineup, SeasonResult } from "../../engine";
+import type { Career } from "../career";
 import { seasonLabel } from "../data";
 import { BADGE_LABEL, drawShareCard, recordText } from "../share";
 import { ordinal } from "./Home";
@@ -10,12 +11,15 @@ export function Result({
   formation,
   lineup,
   link,
+  career,
   onAgain,
 }: {
   result: SeasonResult;
   formation: string;
   lineup: Lineup;
   link: string;
+  /** Your record after this season, or null for a replay of someone else's run. */
+  career: Career | null;
   onAgain: () => void;
 }) {
   const [status, setStatus] = useState<string | null>(null);
@@ -28,6 +32,14 @@ export function Result({
           : user.position <= 4 ? "Champions League football."
             : user.position >= rows.length - 2 ? "Relegated."
               : "A season to remember. Sort of.";
+
+  const streakLine = !career
+    ? null
+    : user.position === 1
+      ? career.streak >= 2
+        ? `That's ${career.streak} titles in a row!`
+        : career.titles === 1 ? "Your first title!" : `Title number ${career.titles}.`
+      : `Your record: ${career.titles} ${career.titles === 1 ? "title" : "titles"} from ${career.seasons} ${career.seasons === 1 ? "season" : "seasons"}.`;
 
   const share = async () => {
     const text = `Ultimate XI: ${recordText(result)}, ${ordinal(user.position)} in ${seasonLabel(result.season)}. Can you beat it?`;
@@ -67,6 +79,7 @@ export function Result({
       <p className="eyebrow">{seasonLabel(result.season)} Premier League</p>
       <h1 className="result__record">{recordText(result)}</h1>
       <p className="result__headline">{headline}</p>
+      {streakLine && <p className={user.position === 1 ? "result__streak result__streak--win" : "result__streak"}>{streakLine}</p>}
       <p className="result__pos">
         Finished {ordinal(user.position)} with {user.row.points} points · {user.row.goalsFor} scored, {user.row.goalsAgainst} conceded
       </p>

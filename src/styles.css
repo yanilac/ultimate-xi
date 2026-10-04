@@ -36,7 +36,7 @@ button { font: inherit; color: inherit; }
   max-width: 480px;
   margin: 0 auto;
   padding: 12px 16px calc(24px + env(safe-area-inset-bottom));
-  min-height: 100dvh;
+  min-height: calc(100dvh - 32px);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -83,7 +83,33 @@ h3 { font-size: 16px; margin-top: 8px; }
 .home__title { font-size: 48px; font-weight: 900; letter-spacing: -0.02em; }
 .home__tag { margin: 0; color: var(--muted); font-size: 17px; line-height: 1.4; }
 .home__last { margin: 0; color: var(--muted); font-size: 14px; }
-.howto { text-align: left; color: var(--muted); line-height: 1.5; padding-left: 20px; margin: 0; }
+.howto { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; text-align: left; }
+.howto__step { display: grid; grid-template-columns: 112px 1fr; gap: 12px; align-items: center; background: var(--bg-raised); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; }
+.howto__visual { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 72px; }
+.howto__text { min-width: 0; }
+.howto__text h3 { margin: 0 0 2px; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+.howto__text p { margin: 0; font-size: 13px; line-height: 1.4; color: var(--muted); }
+.howto__n { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: 12px; font-weight: 900; flex-shrink: 0; }
+.howto__pitch .mini-pitch { width: 64px; }
+.howto__spin { background: var(--accent); color: var(--accent-ink); border-radius: 999px; padding: 3px 16px; font-weight: 800; font-size: 12px; }
+.howto__cards { display: grid; grid-template-columns: repeat(2, auto); gap: 4px; }
+.howto__card { display: flex; flex-direction: column; align-items: center; gap: 2px; background: var(--bg-card); border: 1px solid var(--line); border-radius: 6px; padding: 3px 5px; font-size: 13px; line-height: 1; }
+.howto__card--icon { background: linear-gradient(160deg, #3a2f10, #1c1608); border-color: var(--gold); color: var(--gold); }
+.howto__icontag { font-size: 8px; font-weight: 800; letter-spacing: 0.05em; }
+.howto__links { display: grid; gap: 6px; font-size: 9px; color: var(--muted); line-height: 1.1; }
+.howto__links span { display: flex; align-items: center; gap: 5px; }
+.howto__line { display: inline-block; width: 22px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+.howto__line--strong { background: var(--link-strong); }
+.howto__line--weak { background: var(--link-weak); }
+.howto__line--none { background: var(--link-none); }
+.howto__slots { display: flex; gap: 6px; }
+.howto__slot { display: flex; flex-direction: column; align-items: center; background: rgba(5, 20, 12, 0.88); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 4px 5px; line-height: 1.2; }
+.howto__slot b { font-size: 14px; white-space: nowrap; }
+.howto__slot em { font-style: normal; }
+.howto__slot small { font-size: 9px; color: var(--muted); }
+.howto__table { display: grid; gap: 2px; width: 100%; font-size: 10px; }
+.howto__row { display: grid; grid-template-columns: 12px 1fr auto; gap: 4px; padding: 2px 4px; border-radius: 4px; color: var(--muted); }
+.howto__row--you { background: rgba(61, 220, 132, 0.14); color: var(--text); font-weight: 700; }
 
 /* Formation picker */
 .formations { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -292,3 +318,27 @@ h3 { font-size: 16px; margin-top: 8px; }
 .version { margin: auto 0 0; padding-top: 16px; font-size: 11px; color: var(--muted); opacity: 0.7; font-variant-numeric: tabular-nums; }
 .slot__offpos { color: var(--link-weak); font-weight: 800; }
 .legend { margin: 0; font-size: 12px; color: var(--muted); text-align: center; }
+
+/* Career record bar, on every screen */
+.career-strip {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  padding: calc(6px + env(safe-area-inset-top, 0px)) 16px 6px;
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.career-strip b { color: var(--text); font-size: 14px; }
+.career-strip__item { display: inline-flex; align-items: baseline; gap: 3px; }
+.career-strip__trophy { font-size: 12px; }
+.career-strip__item--hot b { color: var(--gold); }
+.career-strip__best { font-size: 11px; }
+.result__streak { margin: 0; font-size: 15px; font-weight: 700; color: var(--muted); }
+.result__streak--win { color: var(--gold); }

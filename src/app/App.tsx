@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { simulateSeason, startDraft, type DraftState, type Lineup, type SeasonData, type SeasonResult } from "../engine";
+import { addSeason, readCareer, saveCareer, type Career } from "./career";
+import { CareerStrip } from "./components/CareerStrip";
 import { loadSeasons } from "./data";
 import { lineupFromKeys, newSeed, runFromLocation, shareUrl, type RunCode } from "./run";
 import { Draft } from "./screens/Draft";
@@ -13,23 +15,25 @@ type Screen =
   | { name: "home" }
   | { name: "formation" }
   | { name: "draft"; draft: DraftState }
-  | { name: "season"; run: RunCode; lineup: Lineup; result: SeasonResult }
-  | { name: "result"; run: RunCode; lineup: Lineup; result: SeasonResult };
+  | { name: "season"; run: RunCode; lineup: Lineup; result: SeasonResult; own: boolean }
+  | { name: "result"; run: RunCode; lineup: Lineup; result: SeasonResult; own: boolean };
 
 export function App() {
   const [seasons, setSeasons] = useState<SeasonData[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [screen, setScreen] = useState<Screen>({ name: "home" });
+  const [career, setCareer] = useState<Career>(readCareer);
 
   useEffect(() => {
     loadSeasons().then(setSeasons, () => setError("Couldn't load the player data. Check your connection and reload."));
   }, []);
 
-  const playRun = (run: RunCode, lineup: Lineup, data: SeasonData[]) => {
+  // own: drafted on this device, so it counts toward your record. Replays of shared links don't.
+  const playRun = (run: RunCode, lineup: Lineup, data: SeasonData[], own: boolean) => {
     const season = data.find((s) => s.season === run.league);
     if (!season) return;
     const result = simulateSeason(run.seed, season, run.formation, lineup);
-    setScreen({ name: "season", run, lineup, result });
+    setScreen({ name: "season", run, lineup, result, own });
   };
 
   // A shared replay link goes straight to that run's season.
@@ -38,7 +42,7 @@ export function App() {
     const run = runFromLocation();
     if (!run) return;
     const lineup = lineupFromKeys(run.xi, seasons);
-    if (lineup) playRun(run, lineup, seasons);
+    if (lineup) playRun(run, lineup, seasons, false);
     else setError("That replay link doesn't match the current player data.");
   }, [seasons]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -57,6 +61,14 @@ export function App() {
     );
   }
 
+  return (
+    <>
+      <CareerStrip career={career} />
+      {renderScreen()}
+    </>
+  );
+
+  function renderScreen() {
   switch (screen.name) {
     case "home":
       return <Home loading={!seasons} onPlay={() => setScreen({ name: "formation" })} />;
@@ -78,7 +90,7 @@ export function App() {
             const d = screen.draft;
             const run: RunCode = { seed: d.seed, formation: d.formation, league: d.leagueSeason, xi: d.lineup.map((p) => p!.key) };
             history.replaceState(null, "", shareUrl(run));
-            playRun(run, d.lineup, seasons!);
+            playRun(run, d.lineup, seasons!, true);
           }}
         />
       );
@@ -87,7 +99,13 @@ export function App() {
         <Season
           result={screen.result}
           onDone={() => {
-            saveLastResult({ record: recordText(screen.result), position: screen.result.user.position, season: screen.result.season });
+            const { result, run, own } = screen;
+            saveLastResult({ record: recordText(result), position: result.user.position, season: result.season });
+            if (own) {
+              const next = addSeason(career, run.seed, result.user.position, result.user.row.lost === 0);
+              saveCareer(next);
+              setCareer(next);
+            }
             setScreen({ ...screen, name: "result" });
           }}
         />
@@ -99,11 +117,13 @@ export function App() {
           formation={screen.run.formation}
           lineup={screen.lineup}
           link={link}
+          career={screen.own ? career : null}
           onAgain={() => {
             history.replaceState(null, "", location.pathname);
             setScreen({ name: "formation" });
           }}
         />
       );
+  }
   }
 }
