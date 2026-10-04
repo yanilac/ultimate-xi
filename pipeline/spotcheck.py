@@ -39,8 +39,8 @@ def squad(season: str, club: str) -> None:
     c = next(c for c in data["clubs"] if c["name"] == club)
     print(f"\n{club} {season}  (finished {c['finish']}, {c['points']} pts)")
     for p in c["players"][:14]:
-        _, name, role, nation, age, rating, apps, goals, assists, minutes, draft = p
-        print(f"  {rating:>3} {role} {name:<26} {nation or '?':<14} {apps:>2} apps {goals:>2}g {assists:>2}a")
+        _, name, role, pos, nation, age, rating, apps, goals, assists, minutes, draft = p
+        print(f"  {rating:>3} {pos:<11} {name:<26} {nation or '?':<14} {apps:>2} apps {goals:>2}g {assists:>2}a")
 
 
 def player(name: str) -> None:
@@ -50,7 +50,7 @@ def player(name: str) -> None:
         for c in data["clubs"]:
             for p in c["players"]:
                 if p[1] == name:
-                    rows.append(f"{data['season']} {c['name'][:14]}:{p[5]}")
+                    rows.append(f"{data['season']} {c['name'][:14]}:{p[6]}")
     print(f"{name}: " + ", ".join(rows))
 
 

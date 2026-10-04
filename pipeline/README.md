@@ -3,7 +3,7 @@
 `python3 pipeline/build.py` downloads the source data (cached in `pipeline/raw/`, not committed) and writes the game data:
 
 - `public/data/index.json`: the list of seasons, each with its number of games and clubs.
-- `public/data/seasons/<season>.json`: one file per season. Each file lists every club with its final position and points. Each player has the fields named in `fields`: id, name, role (G/D/M/F), nation, age, rating, apps, goals, assists, minutes, draftable.
+- `public/data/seasons/<season>.json`: one file per season. Each file lists every club with its final position and points. Each player has the fields named in `fields`: id, name, role (G/D/M/F), positions (such as `RW/LW/CF`, main position first), nation, age, rating, apps, goals, assists, minutes, draftable.
 
 `python3 pipeline/spotcheck.py` prints famous squads and career rating lines to sanity-check the formula. Pass `season club` pairs to look at others, for example `python3 pipeline/spotcheck.py 1995-96 "Newcastle United"`.
 
@@ -12,6 +12,11 @@ Both scripts use only the Python standard library.
 ## Source
 
 The source is the per-player season totals and final tables for every Premier League season from 1992-93 to 2025-26, taken from [ethankaufman/PL-History-Dashboard](https://github.com/ethankaufman/PL-History-Dashboard). That project collected them from the Premier League's public statistics service and cross-checked them against other sources. The repo has no licence file, so its data is used here for a non-commercial fan project only. The raw CSVs are never committed; only derived ratings are.
+
+## Positions
+
+- **2004/05 onward:** detailed positions come from FIFA 05 to FIFA 20 records ([lbenz730/fifa_model](https://github.com/lbenz730/fifa_model)). A player is matched by birth date and a whole-word surname. Each season uses the nearest FIFA edition, so a player who moved positions over his career changes with it. This covers about 72% of draftable players.
+- **Everyone else:** players with no FIFA match, mostly those who retired before 2004 plus a few since 2020, take their positions from `pipeline/positions_manual.csv`. Those were labelled by hand from football knowledge, and the `confidence` column marks the roughly 1 in 5 that are guesses. Edit that file to correct anyone.
 
 ## Rating formula
 
@@ -28,7 +33,6 @@ FIFA-style ratings don't exist for most of these seasons, so every player-season
 All the weights are constants at the top of `build.py`, ready to tune.
 
 **Known limits:**
-- The data only gives broad roles (G/D/M/F). There are no full-back, winger or other detailed positions.
 - The team base dominates, so stars at weak clubs come out low. For example, Le Tissier peaks at 82.
 - The top of the scale is about 91 (Haaland 2022-23, Henry 2002-05).
 

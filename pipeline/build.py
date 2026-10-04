@@ -11,19 +11,27 @@ import csv
 import json
 import statistics
 import sys
+import unicodedata
 import urllib.request
 from collections import defaultdict
 from datetime import date
 from pathlib import Path
 
-SOURCE = "https://raw.githubusercontent.com/ethankaufman/PL-History-Dashboard/main/data/"
-FILES = ["player_seasons.csv", "final_tables.csv"]
+SOURCES = {
+    "player_seasons.csv": "https://raw.githubusercontent.com/ethankaufman/PL-History-Dashboard/main/data/player_seasons.csv",
+    "final_tables.csv": "https://raw.githubusercontent.com/ethankaufman/PL-History-Dashboard/main/data/final_tables.csv",
+    # FIFA 05 to FIFA 20 player records, used for detailed positions.
+    "fifa_stats.csv": "https://raw.githubusercontent.com/lbenz730/fifa_model/master/player_stats.csv",
+}
 
 ROOT = Path(__file__).resolve().parent.parent
 RAW = ROOT / "pipeline" / "raw"
 OUT = ROOT / "public" / "data"
 
 ROLE = {"Goalkeeper": "G", "Defender": "D", "Midfielder": "M", "Forward": "F"}
+POSITIONS = {"GK", "CB", "LB", "RB", "LWB", "RWB", "CDM", "CM", "CAM", "LM", "RM", "LW", "RW", "CF", "ST"}
+DEFAULT_POSITION = {"G": "GK", "D": "CB", "M": "CM", "F": "ST"}
+MANUAL_POSITIONS = ROOT / "pipeline" / "positions_manual.csv"  # for players before FIFA 05
 
 # Players with at least this many league appearances can be drafted.
 DRAFT_MIN_APPS = 10
@@ -47,11 +55,11 @@ MIN_RATING, MAX_RATING = 55, 95
 
 def fetch(refresh: bool) -> None:
     RAW.mkdir(parents=True, exist_ok=True)
-    for name in FILES:
+    for name, url in SOURCES.items():
         path = RAW / name
         if refresh or not path.exists():
             print(f"downloading {name}")
-            urllib.request.urlretrieve(SOURCE + name, path)
+            urllib.request.urlretrieve(url, path)
 
 
 def read(name: str) -> list[dict]:
@@ -77,6 +85,61 @@ def clamp(x: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, x))
 
 
+def simplify(name: str) -> str:
+    text = unicodedata.normalize("NFKD", name.lower())
+    return "".join(c for c in text if c.isalpha() or c == " ").strip()
+
+
+def fifa_positions(players: list[dict]) -> dict:
+    """Map player_id -> {fifa year: [positions]} by matching birth date and surname."""
+    by_birth = defaultdict(list)
+    with open(RAW / "fifa_stats.csv", newline="", encoding="utf-8", errors="replace") as f:
+        for row in csv.DictReader(f):
+            by_birth[row["birthdate"]].append(row)
+    found = {}
+    for p in players:
+        if p["player_id"] in found:
+            continue
+        name = simplify(p["player"])
+        years = {}
+        for row in by_birth.get(p["birth_date"], []):
+            other = simplify(row["name"])
+            if not other or not name:
+                continue
+            # Whole-word surname match ("Gi" must not match "Sergio").
+            if name.split()[-1] in other.split() or other.split()[-1] in name.split():
+                pos = [x for x in row["preferred_positions"].split("/") if x in POSITIONS]
+                if pos:
+                    years[int(row["year"])] = pos
+        if years:
+            found[p["player_id"]] = years
+    return found
+
+
+def manual_positions() -> dict:
+    if not MANUAL_POSITIONS.exists():
+        return {}
+    with open(MANUAL_POSITIONS, newline="", encoding="utf-8") as f:
+        return {r["player_id"]: [x for x in r["positions"].split("/") if x in POSITIONS] for r in csv.DictReader(f)}
+
+
+def positions_for(p: dict, fifa: dict, manual: dict) -> list[str]:
+    """Detailed positions for a player-season: the nearest FIFA edition
+    (FIFA year Y covers season Y-1/Y), else the hand-labelled list, else a
+    default for the broad role."""
+    years = fifa.get(p["player_id"])
+    if years:
+        target = int(p["season"][:4]) + 1
+        nearest = min(years, key=lambda y: (abs(y - target), y))
+        # Before FIFA 05 a player may have played elsewhere on the pitch, so
+        # prefer the hand-labelled list for seasons well before his first edition.
+        if not (target < nearest - 3 and manual.get(p["player_id"])):
+            return years[nearest]
+    if manual.get(p["player_id"]):
+        return manual[p["player_id"]]
+    return [DEFAULT_POSITION[p["role"]]]
+
+
 def build() -> None:
     players = [p for p in read("player_seasons.csv") if p["position"] in ROLE]
     tables = read("final_tables.csv")
@@ -96,6 +159,13 @@ def build() -> None:
         p["ppg"] = int(t["points"]) / int(t["played"])
         p["age"] = age_at(p["birth_date"], p["season"])
     players = [p for p in players if p["appearances"] >= KEEP_MIN_APPS]
+
+    fifa, manual = fifa_positions(players), manual_positions()
+    for p in players:
+        p["positions"] = positions_for(p, fifa, manual)
+        # Keep the broad role consistent with the detailed positions.
+        if p["positions"][0] == "GK":
+            p["role"] = "G"
 
     # Individual output, z-scored within each season and role among regulars,
     # so that eras with fewer goals are not penalised.
@@ -176,7 +246,7 @@ def write(players: list[dict], tables: list[dict], order: list[str]) -> None:
         data = {
             "season": season_key(season),
             "games": int(rows[0]["played"]),
-            "fields": ["id", "name", "role", "nation", "age", "rating", "apps", "goals", "assists", "minutes", "draftable"],
+            "fields": ["id", "name", "role", "positions", "nation", "age", "rating", "apps", "goals", "assists", "minutes", "draftable"],
             "clubs": [],
         }
         for t in rows:
@@ -186,7 +256,7 @@ def write(players: list[dict], tables: list[dict], order: list[str]) -> None:
                 "finish": int(t["position"]),
                 "points": int(t["points"]),
                 "players": [[
-                    int(p["player_id"]), p["player"], p["role"], p["nationality"] or None,
+                    int(p["player_id"]), p["player"], p["role"], "/".join(p["positions"]), p["nationality"] or None,
                     p["age"], p["rating"], p["appearances"],
                     p["goals"], p["assists"], p["minutes"],
                     1 if p["appearances"] >= DRAFT_MIN_APPS else 0,
