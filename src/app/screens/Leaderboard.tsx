@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import type { SeasonData } from "../../engine";
 import { seasonLabel } from "../data";
-import { fetchBoard, PERIODS, readSubmitted, verifyEntry, type Entry, type Period } from "../leaderboard";
+import { buildBoard, fetchTitles, PERIODS, playerId, type BoardRow, type Period } from "../leaderboard";
 import { MODES, type Mode } from "../modes";
 import { decodeRun, shareUrl } from "../run";
-import { ordinal } from "./Home";
 
 export function Leaderboard({
   mode,
@@ -19,17 +18,17 @@ export function Leaderboard({
   onBack: () => void;
 }) {
   const [period, setPeriod] = useState<Period>("today");
-  const [rows, setRows] = useState<Entry[] | null>(null);
+  const [rows, setRows] = useState<BoardRow[] | null>(null);
   const [error, setError] = useState(false);
-  const mine = readSubmitted();
+  const me = `p:${playerId()}`;
 
   useEffect(() => {
     if (!seasons) return;
     let live = true;
     setRows(null);
     setError(false);
-    fetchBoard(mode, period).then(
-      (entries) => live && setRows(entries.filter((e) => verifyEntry(e, seasons)).slice(0, 50)),
+    fetchTitles(mode, period).then(
+      (entries) => live && setRows(buildBoard(entries, seasons).slice(0, 50)),
       () => live && setError(true),
     );
     return () => {
@@ -37,8 +36,8 @@ export function Leaderboard({
     };
   }, [mode, period, seasons]);
 
-  const open = (e: Entry) => {
-    const run = decodeRun(e.link);
+  const open = (row: BoardRow) => {
+    const run = decodeRun(row.best.link);
     if (!run) return;
     location.href = shareUrl(run);
     location.reload();
@@ -69,29 +68,29 @@ export function Leaderboard({
       ) : !rows ? (
         <p className="hint">Loading…</p>
       ) : rows.length === 0 ? (
-        <p className="hint">No seasons yet {period === "today" ? "today" : period === "week" ? "this week" : ""}. Be the first.</p>
+        <p className="hint">No titles won {period === "today" ? "today" : period === "week" ? "this week" : "yet"}. Be the first.</p>
       ) : (
         <ol className="board__list">
-          {rows.map((e, i) => (
-            <li key={e.seed}>
-              <button type="button" className={mine.includes(e.seed) ? "board__row board__row--mine" : "board__row"} onClick={() => open(e)}>
+          {rows.map((row, i) => (
+            <li key={row.key}>
+              <button type="button" className={row.key === me ? "board__row board__row--mine" : "board__row"} onClick={() => open(row)}>
                 <span className="board__rank">{i + 1}</span>
                 <span className="board__who">
-                  <b>{e.name}</b>
+                  <b>{row.name}</b>
                   <small>
-                    {seasonLabel(e.season)} · {e.formation} · {e.position === 1 ? "Champions" : ordinal(e.position)}
+                    Best: {seasonLabel(row.best.season)} · {row.best.won}-{row.best.drawn}-{row.best.lost}
                   </small>
                 </span>
                 <span className="board__rec">
-                  {e.won}-{e.drawn}-{e.lost}
-                  <small>{e.points} pts · {e.gd > 0 ? "+" : ""}{e.gd}</small>
+                  {row.titles}
+                  <small>{row.titles === 1 ? "title" : "titles"}</small>
                 </span>
               </button>
             </li>
           ))}
         </ol>
       )}
-      <p className="hint board__note">Ranked by points per game, then goal difference. Tap a season to watch it.</p>
+      <p className="hint board__note">Ranked by titles. Ties go to the best title season (points per game, then goal difference). Tap a row to watch that season.</p>
     </main>
   );
 }

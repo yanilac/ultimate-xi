@@ -3,7 +3,7 @@ import { simulateSeason, startDraft, type DraftState, type Lineup, type SeasonDa
 import { addSeason, readCareer, saveCareer, type Career } from "./career";
 import { CareerStrip } from "./components/CareerStrip";
 import { loadSeasons } from "./data";
-import { leaderboardEnabled, markSubmitted, submitEntry } from "./leaderboard";
+import { flushPending, leaderboardEnabled, readName, saveName, submitEntry } from "./leaderboard";
 import { modeOfSeason, readMode, saveMode, type Mode } from "./modes";
 import { lineupFromKeys, newSeed, runFromLocation, shareUrl, type RunCode } from "./run";
 import { Draft } from "./screens/Draft";
@@ -40,6 +40,20 @@ export function App() {
       () => setError("Couldn't load the player data. Check your connection and reload."),
     );
   }, [mode]);
+
+  // Leaderboard: the name is asked for once, then every season you draft is added.
+  const [lbName, setLbName] = useState(readName);
+  const [lbStatus, setLbStatus] = useState<"sending" | "sent" | "queued" | null>(null);
+  useEffect(() => {
+    if (leaderboardEnabled) void flushPending();
+  }, []);
+  const submitRun = (name: string, run: RunCode, result: SeasonResult) => {
+    setLbStatus("sending");
+    submitEntry(name, run, result).then(
+      (ok) => setLbStatus(ok ? "sent" : "queued"),
+      () => setLbStatus("queued"),
+    );
+  };
 
   const chooseMode = (m: Mode) => {
     setMode(m);
@@ -136,6 +150,8 @@ export function App() {
               const next = addSeason(career, run.seed, result.user.position, result.user.row.lost === 0);
               saveCareer(modeOfSeason(run.league), next);
               setCareer(next);
+              setLbStatus(null);
+              if (leaderboardEnabled && lbName) submitRun(lbName, run, result);
             }
             setScreen({ ...screen, name: "result" });
           }}
@@ -149,12 +165,17 @@ export function App() {
           lineup={screen.lineup}
           link={link}
           career={screen.own ? career : null}
-          onSubmit={
+          board={
             screen.own && leaderboardEnabled
-              ? async (name) => {
-                  const ok = await submitEntry(name, screen.run, screen.result);
-                  if (ok) markSubmitted(screen.run.seed);
-                  return ok;
+              ? {
+                  name: lbName,
+                  status: lbStatus,
+                  onName: (name) => {
+                    saveName(name);
+                    setLbName(name);
+                    // First time: this season goes on now. A rename only changes how you're shown.
+                    if (!lbStatus) submitRun(name, screen.run, screen.result);
+                  },
                 }
               : null
           }

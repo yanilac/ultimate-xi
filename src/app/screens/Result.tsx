@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { Lineup, SeasonResult } from "../../engine";
 import type { Career } from "../career";
 import { leagueTitle, seasonLabel } from "../data";
-import { SubmitScore } from "../components/SubmitScore";
+import { LeaderboardName } from "../components/LeaderboardName";
 import { BADGE_LABEL, drawShareCard, recordText } from "../share";
 import { ordinal } from "./Home";
 import { MiniTable, tableAfter } from "./Season";
@@ -13,7 +13,7 @@ export function Result({
   lineup,
   link,
   career,
-  onSubmit,
+  board,
   onBoard,
   onAgain,
 }: {
@@ -23,8 +23,8 @@ export function Result({
   link: string;
   /** Your record after this season, or null for a replay of someone else's run. */
   career: Career | null;
-  /** Put this run on the leaderboard; null when it can't go there (a replay, or no leaderboard). */
-  onSubmit: ((name: string) => Promise<boolean>) | null;
+  /** Leaderboard state for this run; null when it can't go there (a replay, or no leaderboard). */
+  board: { name: string; status: "sending" | "sent" | "queued" | null; onName: (name: string) => void } | null;
   onBoard: () => void;
   onAgain: () => void;
 }) {
@@ -129,7 +129,7 @@ export function Result({
           );
         })()}
       </dl>
-      {onSubmit && <SubmitScore onSubmit={onSubmit} onView={onBoard} />}
+      {board && <LeaderboardName {...board} onView={onBoard} />}
       <div className="result__actions">
         <button className="btn btn--primary btn--big" onClick={share}>Share result</button>
         <button className="btn btn--ghost" onClick={copy}>Copy replay link</button>
