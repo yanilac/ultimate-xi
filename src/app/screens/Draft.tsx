@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   getFormation, isComplete, pick, respin, slotsFor, swap, teamChemistry, canPlay,
   type DraftState, type SeasonData,
@@ -9,11 +9,16 @@ import { seasonLabel } from "../data";
 
 const SPIN_MS = 900;
 
-/** A quick reel of random club names before the real spin lands. */
+/**
+ * The round's spin is decided by the seed, but stays hidden until the player taps Spin.
+ * Tapping starts a short reel of random club names, then reveals the cards.
+ */
 function useSpinReel(state: DraftState, seasons: SeasonData[]) {
   const [reel, setReel] = useState<string | null>(null);
+  const [revealed, setRevealed] = useState(-1);
+  const [spinning, setSpinning] = useState(-1);
   useEffect(() => {
-    if (!state.current) return;
+    if (spinning !== state.spinCount) return;
     const started = Date.now();
     const tick = () => {
       const s = seasons[Math.floor(Math.random() * seasons.length)]!;
@@ -25,11 +30,16 @@ function useSpinReel(state: DraftState, seasons: SeasonData[]) {
       if (Date.now() - started >= SPIN_MS) {
         clearInterval(id);
         setReel(null);
+        setRevealed(state.spinCount);
       } else tick();
     }, 70);
     return () => clearInterval(id);
-  }, [state.spinCount]); // eslint-disable-line react-hooks/exhaustive-deps
-  return reel;
+  }, [spinning, state.spinCount]); // eslint-disable-line react-hooks/exhaustive-deps
+  return {
+    reel,
+    revealed: revealed === state.spinCount,
+    spin: () => setSpinning(state.spinCount),
+  };
 }
 
 export function Draft({
@@ -50,11 +60,20 @@ export function Draft({
   const [card, setCard] = useState<string | null>(null);
   const [moving, setMoving] = useState<number | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const reel = useSpinReel(state, seasons);
+  const { reel, revealed, spin: startSpin } = useSpinReel(state, seasons);
   const complete = isComplete(state);
   const round = state.lineup.filter(Boolean).length + (complete ? 0 : 1);
 
   useEffect(() => setCard(null), [state.spinCount]);
+
+  // A re-spin is already a deliberate tap, so it starts the reel without asking for Spin again.
+  const startSpinNext = useRef(false);
+  useEffect(() => {
+    if (startSpinNext.current) {
+      startSpinNext.current = false;
+      startSpin();
+    }
+  }, [state.spinCount]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const chosen = state.current?.options.find((p) => p.key === card) ?? null;
   const targets = useMemo(() => {
@@ -121,7 +140,11 @@ export function Draft({
               ? `Tap a highlighted slot for ${chosen.name}.`
               : moving !== null
                 ? "Tap a highlighted slot to swap, or the same player to cancel."
-                : "Pick a player.")}
+                : revealed
+                  ? "Pick a player."
+                  : reel
+                    ? "Spinning…"
+                    : `Round ${round}: tap Spin.`)}
       </p>
 
       {complete ? (
@@ -132,25 +155,32 @@ export function Draft({
         </div>
       ) : (
         <section className="spin">
-          <div className={`spin__banner ${spin?.kind === "icon" && !reel ? "spin__banner--icon" : ""}`}>
-            {reel ? (
-              <span className="spin__reel">{reel}</span>
-            ) : spin?.kind === "icon" ? (
-              <span>Icon spin!</span>
-            ) : spin ? (
-              <span>
-                {spin.club} <b>{seasonLabel(spin.season)}</b>
-              </span>
-            ) : null}
-            <button
-              className="btn btn--small btn--ghost"
-              disabled={!!reel || state.respinsLeft === 0}
-              onClick={() => onChange(respin(state, seasons))}
-            >
-              Re-spin ({state.respinsLeft})
+          {revealed || reel ? (
+            <div className={`spin__banner ${spin?.kind === "icon" && !reel ? "spin__banner--icon" : ""}`}>
+              {reel ? (
+                <span className="spin__reel">{reel}</span>
+              ) : spin?.kind === "icon" ? (
+                <span>Icon spin!</span>
+              ) : (
+                <span>Pick one</span>
+              )}
+              <button
+                className="btn btn--small btn--ghost"
+                disabled={!!reel || state.respinsLeft === 0}
+                onClick={() => {
+                  onChange(respin(state, seasons));
+                  startSpinNext.current = true;
+                }}
+              >
+                Re-spin ({state.respinsLeft})
+              </button>
+            </div>
+          ) : (
+            <button className="btn btn--primary btn--big spin__go" onClick={startSpin}>
+              Spin
             </button>
-          </div>
-          {!reel && spin && (
+          )}
+          {revealed && spin && (
             <div className="cards">
               {spin.options.map((p) => (
                 <PlayerCard
