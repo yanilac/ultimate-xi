@@ -62,14 +62,21 @@ function UserMatch({ result, match, week }: { result: SeasonResult; match: Match
         <span className="match__goals">{match.homeGoals} – {match.awayGoals}</span>
         <span className="match__team">{away}</span>
       </div>
-      <ul className="match__scorers">
-        {match.goals.map((g, i) => (
-          <li key={i} className={g.team === user ? "match__scorer--user" : ""}>
-            {g.minute}′ {g.scorer}
-            {g.assister && <span className="match__assist"> ({g.assister})</span>}
-          </li>
+      {/* Fixed height, home goals under the home team and away under away, so the table below never jumps. */}
+      <div className="match__scorers">
+        {[match.home, match.away].map((team) => (
+          <ul key={team} className="match__side">
+            {match.goals
+              .filter((g) => g.team === team)
+              .map((g, i) => (
+                <li key={i} className={g.team === user ? "match__scorer--user" : ""}>
+                  {g.minute}′ {g.scorer}
+                  {g.assister && <span className="match__assist"> ({g.assister})</span>}
+                </li>
+              ))}
+          </ul>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
