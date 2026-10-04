@@ -1,0 +1,34 @@
+{
+ "seasons": [
+  {
+   "season": "2026-27 Premier League",
+   "file": "premier-league",
+   "games": 38,
+   "clubs": 20
+  },
+  {
+   "season": "2026-27 LaLiga",
+   "file": "laliga",
+   "games": 38,
+   "clubs": 20
+  },
+  {
+   "season": "2026-27 Serie A",
+   "file": "serie-a",
+   "games": 38,
+   "clubs": 20
+  },
+  {
+   "season": "2026-27 Bundesliga",
+   "file": "bundesliga",
+   "games": 34,
+   "clubs": 18
+  },
+  {
+   "season": "2026-27 Ligue 1",
+   "file": "ligue-1",
+   "games": 34,
+   "clubs": 18
+  }
+ ]
+}

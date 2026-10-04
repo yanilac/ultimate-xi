@@ -31,7 +31,7 @@ export function HowToPlay() {
       <Step n={1} title="Pick a formation" text={`${FORMATIONS.length} shapes, from 4-3-3 to 5-4-1. Every slot is a real position.`}>
         <span className="howto__pitch"><MiniPitch formation={f} /></span>
       </Step>
-      <Step n={2} title="Spin and pick" text="Tap Spin to get 4 players from different clubs and seasons. Pick 1 and drop him in a slot he can play. 11 rounds, 2 re-spins.">
+      <Step n={2} title="Spin and pick" text="Tap Spin to get 4 players, each from a different club. Pick 1 and drop him in a slot he can play. 11 rounds, 2 re-spins.">
         <span className="howto__spin">Spin</span>
         <span className="howto__cards">
           <MiniCard rating={86} club="Arsenal" />
@@ -42,8 +42,8 @@ export function HowToPlay() {
       </Step>
       <Step n={3} title="Build chemistry" text="Lines between team-mates show their link. More green means higher chemistry and higher ratings.">
         <span className="howto__links">
-          <span><i className="howto__line howto__line--strong" />Same club, or nation and era</span>
-          <span><i className="howto__line howto__line--weak" />Same nation or era</span>
+          <span><i className="howto__line howto__line--strong" />Same club, or nation and era/league</span>
+          <span><i className="howto__line howto__line--weak" />Same nation, or era/league</span>
           <span><i className="howto__line howto__line--none" />No link</span>
         </span>
       </Step>
@@ -59,7 +59,7 @@ export function HowToPlay() {
           <MiniCard rating={93} icon />
         </span>
       </Step>
-      <Step n={6} title="Play the season" text="Your XI replaces a real club and plays all 38 games, week by week. Win the league, then go again for a streak.">
+      <Step n={6} title="Play the season" text="Your XI replaces a real club and plays every league game, week by week. Win the league, then go again for a streak.">
         <span className="howto__table">
           <span className="howto__row howto__row--you"><b>1</b> Your XI <b>98</b></span>
           <span className="howto__row"><b>2</b> Arsenal <b>87</b></span>

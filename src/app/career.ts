@@ -1,3 +1,5 @@
+import type { Mode } from "./modes";
+
 /**
  * Your record across every season you've drafted and played on this device.
  * Kept in localStorage (there are no accounts), so it survives reloads but not
@@ -17,15 +19,16 @@ export interface Career {
   counted: string[];
 }
 
-const KEY = "ultimate-xi:career";
+/** Each mode keeps its own record. The history key predates modes, so it stays as it was. */
+const key = (mode: Mode) => (mode === "pl" ? "ultimate-xi:career" : "ultimate-xi:career:top5");
 
 export const EMPTY_CAREER: Career = {
   seasons: 0, titles: 0, top4: 0, invincibles: 0, streak: 0, bestStreak: 0, recent: [], counted: [],
 };
 
-export function readCareer(): Career {
+export function readCareer(mode: Mode): Career {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(key(mode));
     return raw ? { ...EMPTY_CAREER, ...(JSON.parse(raw) as Partial<Career>) } : EMPTY_CAREER;
   } catch {
     return EMPTY_CAREER;
@@ -49,9 +52,9 @@ export function addSeason(career: Career, seed: string, position: number, unbeat
   };
 }
 
-export function saveCareer(career: Career) {
+export function saveCareer(mode: Mode, career: Career) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(career));
+    localStorage.setItem(key(mode), JSON.stringify(career));
   } catch {
     /* storage unavailable: the record lasts for this visit only */
   }

@@ -23,7 +23,7 @@ function useSpinReel(state: DraftState, seasons: SeasonData[]) {
     const tick = () => {
       const s = seasons[Math.floor(Math.random() * seasons.length)]!;
       const c = s.clubs[Math.floor(Math.random() * s.clubs.length)]!;
-      setReel(`${c.name} ${seasonLabel(s.season)}`);
+      setReel(`${c.name} ${s.league ?? seasonLabel(s.season)}`);
     };
     tick();
     const id = setInterval(() => {

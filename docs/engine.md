@@ -27,6 +27,7 @@ The engine is plain TypeScript in `src/engine/`, with no UI code, so it can be t
 
 - **Strong link:** same club (any season), or same nation and same era (seasons no more than 4 apart).
 - **Weak link:** same nation, or same era.
+- **Top 5 leagues mode:** every card is from the current season, so the league takes the place of the era: same nation and same league is strong, and same league alone is weak.
 - **Icons:** they link weakly to everyone and strongly to their own nation.
 - **Player chemistry:** up to 8 points from the share of strong and weak links to neighbours, plus 2 for playing his main position.
 - **Effective rating:** rating × position fit + (chemistry − 2.5) × 0.8. That runs from −2 at 0 chemistry to +6 at 10.
@@ -60,3 +61,10 @@ smart bot (rating + chemistry):    83 pts, titles 41%, top 4 91%, unbeaten 2 in 
 ```
 
 The match model matches real Premier League seasons. With the Generous setting, a good draft wins the league about 1 in 3 times. An unbeaten season is rare but reachable, and a planned XI with high chemistry and an Icon is the way to chase 38-0-0. The bots only look one pick ahead. Difficulty is set by `USER_BONUS` in `season.ts`. `SQUAD_POOL`, club weighting and the chemistry constants change how strong drafts are.
+
+## Modes
+
+- **Top 5 leagues** (default): current-season cards from the Premier League, LaLiga, Serie A, Bundesliga and Ligue 1 (`public/data/top5/`, built by `pipeline/build_current.py`). The season sim picks one of the five leagues at random. `npm run tune -- 300 top5` tunes it.
+- **Premier League history**: every season since 1992 (`public/data/`).
+
+Top 5 season keys name the league (`2026-27 LaLiga`), which is how replay links and the app tell the modes apart. Each mode keeps its own record of titles and streaks.

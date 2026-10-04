@@ -6,7 +6,8 @@
  * 2. Drafts: a bot drafts many XIs (taking the best-fitting option each round)
  *    and plays them; shows where they finish and how often anyone goes unbeaten.
  *
- * Usage: npm run tune [-- runs]
+ * Usage: npm run tune [-- runs] [top5]
+ * Top 5 mode has no real points to compare, so it skips step 1.
  */
 import {
   clubSheet, createRng, fixtures, isComplete, pick, playMatch, simulateSeason,
@@ -15,8 +16,9 @@ import {
 } from "../src/engine";
 import { loadSeasons } from "./load";
 
-const seasons = loadSeasons();
-const runs = Number(process.argv[2] ?? 300);
+const mode = process.argv.includes("top5") ? "top5" : "pl";
+const seasons = loadSeasons(mode);
+const runs = Number(process.argv.slice(2).find((a) => /^\d+$/.test(a)) ?? 300);
 
 function mean(xs: number[]) { return xs.reduce((a, b) => a + b, 0) / xs.length; }
 function sd(xs: number[]) { const m = mean(xs); return Math.sqrt(mean(xs.map((x) => (x - m) ** 2))); }
@@ -106,7 +108,7 @@ function drafts(bot: Bot) {
   console.log(`  titles ${titles}, unbeaten ${unbeaten}, perfect ${perfect}, runs with an Icon spin ${icons}`);
 }
 
-realSeasons();
+if (mode === "pl") realSeasons();
 drafts("casual");
 drafts("greedy");
 drafts("smart");

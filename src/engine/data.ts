@@ -3,6 +3,7 @@ import type { Club, Player, Position, Role, SeasonData } from "./types";
 /** The season files as written by pipeline/build.py. */
 interface RawSeason {
   season: string;
+  league?: string;
   games: number;
   fields: string[];
   clubs: { name: string; finish: number; points: number; players: unknown[][] }[];
@@ -30,6 +31,7 @@ export function parseSeason(raw: RawSeason): SeasonData {
         rating: get<number>(row, "rating"),
         season: raw.season,
         club: c.name,
+        league: raw.league ?? null,
         icon: false,
         goalsPer90: minutes > 0 ? (goals * 90) / minutes : 0,
         assistsPer90: minutes > 0 ? (assists * 90) / minutes : 0,
@@ -41,7 +43,7 @@ export function parseSeason(raw: RawSeason): SeasonData {
       };
     }),
   }));
-  return { season: raw.season, games: raw.games, clubs };
+  return { season: raw.season, ...(raw.league ? { league: raw.league } : {}), games: raw.games, clubs };
 }
 
 /** "2003-04" -> 2003 */
