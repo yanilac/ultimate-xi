@@ -248,3 +248,17 @@ h3 { font-size: 16px; margin-top: 8px; }
 .awards dd { margin: 0; font-weight: 700; }
 .result__actions { display: flex; flex-direction: column; gap: 8px; }
 .result h3 { text-align: left; }
+
+.crash {
+  text-align: left;
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--bg-raised);
+  border-radius: var(--radius);
+  padding: 10px;
+  max-height: 40vh;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: all;
+}
