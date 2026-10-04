@@ -8,8 +8,8 @@ import { simulateSeason, type SeasonData, type SeasonResult } from "../engine";
 import { modeOfSeason, type Mode } from "./modes";
 import { decodeRun, encodeRun, lineupFromKeys, type RunCode } from "./run";
 
-// Filled in once the Supabase project exists. Empty means the leaderboard is hidden.
-const SUPABASE_URL: string = "";
+// Public values for the Supabase project. Empty would hide the leaderboard.
+const SUPABASE_URL: string = "https://gmvozoufvqdmjnvrrwif.supabase.co";
 const SUPABASE_ANON_KEY: string = "sb_publishable_WPxuuH2NjxJ5gKFaNrtFag_tUHCcqs-";
 
 export const leaderboardEnabled = SUPABASE_URL !== "" && SUPABASE_ANON_KEY !== "";
