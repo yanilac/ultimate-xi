@@ -1,5 +1,6 @@
 import { FIT_NATURAL, positionFit, type Formation, type Lineup, type TeamChemistry } from "../../engine";
 import { ClubBadge } from "./ClubBadge";
+import { Flag } from "./Flag";
 import { shortName } from "./PlayerCard";
 
 const LINK_COLOUR = { strong: "var(--link-strong)", weak: "var(--link-weak)", none: "var(--link-none)" };
@@ -61,6 +62,11 @@ export function Pitch({
           >
             {player ? (
               <>
+                {player.nation && (
+                  <span className="slot__flag">
+                    <Flag nation={player.nation} small />
+                  </span>
+                )}
                 {player.club && !player.icon && (
                   <span className="slot__badge">
                     <ClubBadge club={player.club} small />

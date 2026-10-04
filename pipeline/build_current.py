@@ -38,6 +38,19 @@ LEAGUES = [
 ]
 
 # EA's short or unlicensed club names -> the real names people know.
+# EA spells some nations differently from the history data and the Icons; use
+# the history spelling so chemistry and flags match across both.
+NATION_NAMES = {
+    "Bosnia and Herzegovina": "Bosnia & Herzegovina",
+    "Cape Verde Islands": "Cape Verde",
+    "Congo DR": "DR Congo",
+    "Côte d'Ivoire": "Cote D’Ivoire",
+    "Holland": "Netherlands",
+    "Korea Republic": "South Korea",
+    "Turkey": "Turkiye",
+    "Republic of Ireland": "Ireland",
+}
+
 CLUB_NAMES = {
     # Common short names for clubs EA lists by their full title.
     "FC Barcelona": "Barcelona",
@@ -160,7 +173,7 @@ def main():
                     r["common_name"] or f'{r["first_name"]} {r["last_name"]}'.strip(),
                     role,
                     "/".join([main_pos, *alts]),
-                    r["nationality"] or None,
+                    NATION_NAMES.get(r["nationality"], r["nationality"]) or None,
                     age(r["birthdate"]),
                     num(r, "overall_rating"),
                     0, goals, assists, MINUTES, 1,

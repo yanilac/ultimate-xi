@@ -68,3 +68,7 @@ The match model matches real Premier League seasons. With the Generous setting, 
 - **Premier League history**: every season since 1992 (`public/data/`).
 
 Top 5 season keys name the league (`2026-27 LaLiga`), which is how replay links and the app tell the modes apart. Each mode keeps its own record of titles and streaks.
+
+## Leaderboard
+
+Finished seasons can be added to a shared Supabase table (`docs/leaderboard.sql`; the URL and public anon key live in `src/app/leaderboard.ts`, and the board is hidden while they're empty). Boards are per mode, for today, this week (from Monday) and all time, in the viewer's time zone, ranked by points per game then goal difference. Each entry stores its run code, and the board replays every run before showing it, so a row whose record doesn't match its replay is dropped.
