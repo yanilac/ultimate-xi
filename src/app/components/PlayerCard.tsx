@@ -1,5 +1,6 @@
 import type { Player } from "../../engine";
 import { ClubBadge } from "./ClubBadge";
+import { Flag } from "./Flag";
 
 export function shortName(name: string): string {
   const parts = name.split(" ");
@@ -38,7 +39,10 @@ export function PlayerCard({
           </>
         )}
       </span>
-      <span className="card__meta">{[player.nation, player.league].filter(Boolean).join(" · ")}</span>
+      <span className="card__meta">
+        <Flag nation={player.nation} />
+        <span>{[player.nation, player.league].filter(Boolean).join(" · ")}</span>
+      </span>
       {/* Top 5 cards are this season's ratings, so there are no season stats to show yet. */}
       {!player.icon && !player.league && (
         <span className="card__stats">

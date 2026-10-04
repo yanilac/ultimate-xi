@@ -36,11 +36,14 @@ export function Home({
   mode,
   onMode,
   onPlay,
+  onBoard,
   loading,
 }: {
   mode: Mode;
   onMode: (m: Mode) => void;
   onPlay: () => void;
+  /** Open the shared leaderboard, or null when there isn't one. */
+  onBoard: (() => void) | null;
   loading: boolean;
 }) {
   const [help, setHelp] = useState(false);
@@ -73,6 +76,11 @@ export function Home({
         <p className="home__last">
           Last time: {last.record} and finished {ordinal(last.position)} in {last.season.replace("-", "/")}
         </p>
+      )}
+      {onBoard && (
+        <button className="btn btn--ghost" onClick={onBoard}>
+          🏆 Leaderboard
+        </button>
       )}
       <button className="btn btn--ghost" onClick={() => setHelp(!help)}>
         {help ? "Hide how to play" : "How to play"}

@@ -242,7 +242,8 @@ h3 { font-size: 16px; margin-top: 8px; }
 .card__club { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; min-width: 0; }
 .card__clubname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .card--icon .card__club { color: var(--gold); }
-.card__meta { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card__meta { display: flex; align-items: center; gap: 5px; min-width: 0; font-size: 12px; color: var(--muted); }
+.card__meta > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .card__stats { font-size: 11px; color: var(--muted); margin-top: 2px; }
 .draft__done { margin-top: 4px; }
 .spin__go { min-height: 52px; }
@@ -321,6 +322,9 @@ h3 { font-size: 16px; margin-top: 8px; }
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
 }
 .badge-club--small { min-width: 24px; height: 14px; font-size: 8px; padding: 0 3px; border-radius: 4px; }
+.flag { flex-shrink: 0; width: 18px; height: 13.5px; border-radius: 2px; object-fit: cover; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3); }
+.flag--small { width: 16px; height: 12px; display: block; }
+.slot__flag { position: absolute; top: -6px; left: -6px; display: flex; }
 .slot__badge { position: absolute; top: -7px; right: -6px; display: flex; }
 .version { margin: auto 0 0; padding-top: 16px; font-size: 11px; color: var(--muted); opacity: 0.7; font-variant-numeric: tabular-nums; }
 .slot__offpos { color: var(--link-weak); font-weight: 800; }
@@ -349,3 +353,28 @@ h3 { font-size: 16px; margin-top: 8px; }
 .career-strip__best { font-size: 11px; }
 .result__streak { margin: 0; font-size: 15px; font-weight: 700; color: var(--muted); }
 .result__streak--win { color: var(--gold); }
+
+/* Leaderboard */
+.board { gap: 12px; }
+.board__top { display: flex; align-items: center; gap: 12px; }
+.board__title { font-size: 24px; font-weight: 900; margin: 0; }
+.tabs { display: flex; gap: 4px; padding: 3px; border-radius: 999px; background: var(--bg-raised); border: 1px solid var(--line); }
+.tab { flex: 1; min-width: 0; padding: 8px 6px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tab--on { background: var(--accent); color: var(--accent-ink); }
+.board__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.board__row { width: 100%; display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg-raised); color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.board__row--mine { border-color: var(--accent); }
+.board__rank { font-weight: 900; font-size: 16px; text-align: center; color: var(--muted); }
+.board__list li:first-child .board__rank { color: #f5c542; }
+.board__who, .board__rec { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.board__who b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.board__who small, .board__rec small { font-size: 12px; color: var(--muted); font-weight: 400; }
+.board__rec { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; }
+.board__note { font-size: 12px; }
+
+/* Leaderboard submit on the result screen */
+.submit { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg-raised); }
+.submit__label { font-weight: 700; font-size: 14px; }
+.submit__row { display: flex; gap: 8px; }
+.submit__input { flex: 1; min-width: 0; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: inherit; font: inherit; font-size: 16px; }
+.submit__done { margin: 0; font-weight: 700; color: var(--accent); }

@@ -4,6 +4,8 @@ export type Mode = "top5" | "pl";
 export interface ModeInfo {
   id: Mode;
   name: string;
+  /** For tight spots like tabs. */
+  short: string;
   blurb: string;
   /** Folder under public/data. */
   dataPath: string;
@@ -13,12 +15,14 @@ export const MODES: ModeInfo[] = [
   {
     id: "top5",
     name: "Top 5 leagues",
+    short: "Top 5 leagues",
     blurb: "This season's players from the Premier League, LaLiga, Serie A, Bundesliga and Ligue 1. Play a season in one of them.",
     dataPath: "data/top5/",
   },
   {
     id: "pl",
     name: "Premier League history",
+    short: "PL history",
     blurb: "Every Premier League season since 1992. Mix eras in one XI and play a season from any year.",
     dataPath: "data/",
   },

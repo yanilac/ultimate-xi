@@ -3,11 +3,13 @@ import { simulateSeason, startDraft, type DraftState, type Lineup, type SeasonDa
 import { addSeason, readCareer, saveCareer, type Career } from "./career";
 import { CareerStrip } from "./components/CareerStrip";
 import { loadSeasons } from "./data";
+import { leaderboardEnabled, markSubmitted, submitEntry } from "./leaderboard";
 import { modeOfSeason, readMode, saveMode, type Mode } from "./modes";
 import { lineupFromKeys, newSeed, runFromLocation, shareUrl, type RunCode } from "./run";
 import { Draft } from "./screens/Draft";
 import { FormationPicker } from "./screens/FormationPicker";
 import { Home, saveLastResult } from "./screens/Home";
+import { Leaderboard } from "./screens/Leaderboard";
 import { Result } from "./screens/Result";
 import { Season } from "./screens/Season";
 import { recordText } from "./share";
@@ -15,6 +17,7 @@ import { recordText } from "./share";
 type Screen =
   | { name: "home" }
   | { name: "formation" }
+  | { name: "leaderboard" }
   | { name: "draft"; draft: DraftState }
   | { name: "season"; run: RunCode; lineup: Lineup; result: SeasonResult; own: boolean }
   | { name: "result"; run: RunCode; lineup: Lineup; result: SeasonResult; own: boolean };
@@ -89,7 +92,17 @@ export function App() {
   function renderScreen() {
   switch (screen.name) {
     case "home":
-      return <Home mode={mode} onMode={chooseMode} loading={!seasons} onPlay={() => setScreen({ name: "formation" })} />;
+      return (
+        <Home
+          mode={mode}
+          onMode={chooseMode}
+          loading={!seasons}
+          onPlay={() => setScreen({ name: "formation" })}
+          onBoard={leaderboardEnabled ? () => setScreen({ name: "leaderboard" }) : null}
+        />
+      );
+    case "leaderboard":
+      return <Leaderboard mode={mode} seasons={seasons} onMode={chooseMode} onBack={() => setScreen({ name: "home" })} />;;
     case "formation":
       return (
         <FormationPicker
@@ -136,6 +149,20 @@ export function App() {
           lineup={screen.lineup}
           link={link}
           career={screen.own ? career : null}
+          onSubmit={
+            screen.own && leaderboardEnabled
+              ? async (name) => {
+                  const ok = await submitEntry(name, screen.run, screen.result);
+                  if (ok) markSubmitted(screen.run.seed);
+                  return ok;
+                }
+              : null
+          }
+          onBoard={() => {
+            history.replaceState(null, "", location.pathname);
+            chooseMode(modeOfSeason(screen.run.league));
+            setScreen({ name: "leaderboard" });
+          }}
           onAgain={() => {
             history.replaceState(null, "", location.pathname);
             setScreen({ name: "formation" });
