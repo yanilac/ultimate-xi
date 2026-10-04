@@ -12,6 +12,13 @@ export const STRENGTH_EFFECT = 0.55;
 export const HOME_ADVANTAGE = 0.12;
 /** Real clubs play together every week, so they get the chemistry of a well-linked side. */
 export const CLUB_CHEM_BONUS = 0;
+/**
+ * Difficulty: added to every effective rating in the user's XI. Real clubs are
+ * tuned to replay real seasons accurately, so this is the one knob for how often
+ * a good draft wins the league. Set for "Generous": a well-drafted XI wins about
+ * 1 in 3 seasons and an unbeaten season is a realistic chase.
+ */
+export const USER_BONUS = 3;
 
 type Line = "G" | "D" | "M" | "F";
 
@@ -47,7 +54,7 @@ export function userSheet(name: string, formationName: string, lineup: Lineup): 
   const chem = teamChemistry(formation, lineup);
   const xi = lineup.map((player, i) => {
     if (!player) throw new Error("the XI is not complete");
-    return { player, line: LINE[formation.slots[i]!.pos], effective: chem.slots[i]!.effective };
+    return { player, line: LINE[formation.slots[i]!.pos], effective: chem.slots[i]!.effective + USER_BONUS };
   });
   return sheet(name, true, xi);
 }

@@ -30,9 +30,9 @@ const LINK_VALUE: Record<LinkStrength, number> = { strong: 1, weak: 0.5, none: 0
 /** Chemistry from links, 0 to 8, plus 2 for playing his main position. */
 export const LINK_CHEM_MAX = 8;
 export const POSITION_CHEM = 2;
-/** Rating change per chemistry point away from CHEM_NEUTRAL: -1.8 at 0 chem, +4.2 at 10. */
-export const CHEM_RATING_PER_POINT = 0.6;
-export const CHEM_NEUTRAL = 3;
+/** Rating change per chemistry point away from CHEM_NEUTRAL: -2 at 0 chem, +6 at 10. */
+export const CHEM_RATING_PER_POINT = 0.8;
+export const CHEM_NEUTRAL = 2.5;
 
 /** The XI being built: one entry per formation slot, null while empty. */
 export type Lineup = (Player | null)[];

@@ -10,7 +10,7 @@ export const RESPINS_PER_RUN = 2;
 /** Chance that a spin is an Icon spin, while the run hasn't had one yet. */
 export const ICON_CHANCE = 0.05;
 /** Options come from the club's best this-many players that season (its regulars). */
-export const SQUAD_POOL = 9;
+export const SQUAD_POOL = 6;
 /** How many of the options should fit an open slot, when the squad allows. */
 export const MIN_FITTING = 2;
 
@@ -82,7 +82,7 @@ function iconSpin(state: DraftState, f: Formation, rng: Rng): Spin | null {
 
 /** Clubs that finished higher come up more often (top club about three times as often as the bottom one). */
 function clubWeight(finish: number, clubs: number): number {
-  return 1 + (2 * (clubs - finish)) / clubs;
+  return 1 + 9 * ((clubs - finish) / clubs) ** 2;
 }
 
 function clubSpin(state: DraftState, f: Formation, rng: Rng, seasons: SeasonData[]): Spin {
