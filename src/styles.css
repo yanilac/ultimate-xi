@@ -79,7 +79,7 @@ h3 { font-size: 16px; margin-top: 8px; }
 
 /* Home */
 .home { justify-content: center; text-align: center; gap: 18px; }
-.home__hero { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.home__hero { margin-top: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
 .home__title { font-size: 48px; font-weight: 900; letter-spacing: -0.02em; }
 .home__tag { margin: 0; color: var(--muted); font-size: 17px; line-height: 1.4; }
 .home__last { margin: 0; color: var(--muted); font-size: 14px; }
@@ -203,7 +203,8 @@ h3 { font-size: 16px; margin-top: 8px; }
 .card__pos { font-size: 12px; font-weight: 700; color: var(--accent); }
 .card--icon .card__pos { color: var(--gold); }
 .card__name { font-weight: 700; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.card__club { font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card__club { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; min-width: 0; }
+.card__clubname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .card--icon .card__club { color: var(--gold); }
 .card__meta { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .card__stats { font-size: 11px; color: var(--muted); margin-top: 2px; }
@@ -265,3 +266,23 @@ h3 { font-size: 16px; margin-top: 8px; }
   word-break: break-word;
   user-select: all;
 }
+
+/* Generic club badges: a code in club colours, no crests */
+.badge-club {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+.badge-club--small { min-width: 24px; height: 14px; font-size: 8px; padding: 0 3px; border-radius: 4px; }
+.slot__badge { position: absolute; top: -7px; right: -6px; display: flex; }
+.version { margin: auto 0 0; padding-top: 16px; font-size: 11px; color: var(--muted); opacity: 0.7; font-variant-numeric: tabular-nums; }

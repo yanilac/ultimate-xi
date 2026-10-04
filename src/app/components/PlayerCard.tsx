@@ -1,4 +1,5 @@
 import type { Player } from "../../engine";
+import { ClubBadge } from "./ClubBadge";
 
 export function shortName(name: string): string {
   const parts = name.split(" ");
@@ -25,7 +26,14 @@ export function PlayerCard({
       <span className="card__pos">{player.positions.join(" · ")}</span>
       <span className="card__name">{player.name}</span>
       <span className="card__club">
-        {player.icon ? "Icon" : `${player.club} ${player.season?.replace("-", "/")}`}
+        {player.icon || !player.club ? (
+          "Icon"
+        ) : (
+          <>
+            <ClubBadge club={player.club} />
+            <span className="card__clubname"><b>{player.season?.replace("-", "/")}</b> {player.club}</span>
+          </>
+        )}
       </span>
       <span className="card__meta">{player.nation ?? ""}</span>
       {!player.icon && (
