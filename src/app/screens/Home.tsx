@@ -61,6 +61,9 @@ export function Home({ onPlay, loading }: { onPlay: () => void; loading: boolean
           <li>Your XI then plays a full Premier League season, week by week.</li>
         </ol>
       )}
+      <p className="version">
+        v{__APP_VERSION__} · {__APP_COMMIT__}
+      </p>
     </main>
   );
 }

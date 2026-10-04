@@ -1,4 +1,5 @@
 import type { Formation, Lineup, TeamChemistry } from "../../engine";
+import { ClubBadge } from "./ClubBadge";
 import { shortName } from "./PlayerCard";
 
 const LINK_COLOUR = { strong: "var(--link-strong)", weak: "var(--link-weak)", none: "var(--link-none)" };
@@ -59,6 +60,11 @@ export function Pitch({
           >
             {player ? (
               <>
+                {player.club && !player.icon && (
+                  <span className="slot__badge">
+                    <ClubBadge club={player.club} small />
+                  </span>
+                )}
                 <span className="slot__rating">{Math.round(sc?.effective ?? player.rating)}</span>
                 <span className="slot__name">{shortName(player.name)}</span>
                 <span className="slot__chem">
