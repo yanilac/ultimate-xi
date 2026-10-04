@@ -19,6 +19,7 @@ export function parseSeason(raw: RawSeason): SeasonData {
       const id = get<number>(row, "id");
       const minutes = get<number>(row, "minutes");
       const goals = get<number>(row, "goals");
+      const assists = get<number>(row, "assists");
       return {
         key: `${id}@${raw.season}`,
         personId: `pl:${id}`,
@@ -31,9 +32,10 @@ export function parseSeason(raw: RawSeason): SeasonData {
         club: c.name,
         icon: false,
         goalsPer90: minutes > 0 ? (goals * 90) / minutes : 0,
+        assistsPer90: minutes > 0 ? (assists * 90) / minutes : 0,
         apps: get<number>(row, "apps"),
         goals,
-        assists: get<number>(row, "assists"),
+        assists,
         minutes,
         draftable: get<number>(row, "draftable") === 1,
       };

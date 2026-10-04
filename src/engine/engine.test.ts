@@ -11,7 +11,7 @@ const seasons = loadSeasons();
 function card(over: Partial<Player>): Player {
   return {
     key: "x", personId: "x", name: "X", role: "M", positions: ["CM"], nation: "England",
-    rating: 80, season: "2003-04", club: "Arsenal", icon: false, goalsPer90: 0.1,
+    rating: 80, season: "2003-04", club: "Arsenal", icon: false, goalsPer90: 0.1, assistsPer90: 0.1,
     apps: 30, goals: 3, assists: 3, minutes: 2500, draftable: true, ...over,
   };
 }
@@ -196,6 +196,18 @@ describe("season", () => {
     expect(result.topScorers.reduce((s, r) => s + r.goals, 0)).toBe(goals);
     expect(result.user.position).toBe(result.table.findIndex((r) => r.isUser) + 1);
     expect(result.replaced).not.toBe("");
+  });
+
+  it("credits assists to a team-mate, on most goals", () => {
+    const state = autoDraft("assists");
+    const season = seasons.find((s) => s.season === state.leagueSeason)!;
+    const result = simulateSeason("assists", season, state.formation, state.lineup);
+    const goals = result.matchdays.flat().flatMap((m) => m.goals);
+    const assisted = goals.filter((g) => g.assisterKey);
+    for (const g of assisted) expect(g.assisterKey).not.toBe(g.scorerKey);
+    expect(assisted.length / goals.length).toBeGreaterThan(0.65);
+    expect(assisted.length / goals.length).toBeLessThan(0.85);
+    expect(result.topAssists.reduce((s, r) => s + r.assists, 0)).toBe(assisted.length);
   });
 
   it("gives the same season for the same seed", () => {

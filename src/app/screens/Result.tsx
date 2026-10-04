@@ -80,6 +80,8 @@ export function Result({
         {(() => {
           const boot = result.topScorers[0];
           const bootIsYours = boot && boot.team === user.team;
+          const assistKing = result.topAssists[0];
+          const assistKingIsYours = assistKing && assistKing.team === user.team;
           return (
             <>
               {boot && (
@@ -92,6 +94,17 @@ export function Result({
               )}
               {user.topScorer && !bootIsYours && (
                 <div><dt>Your XI's top scorer</dt><dd>{user.topScorer.name} ({user.topScorer.goals})</dd></div>
+              )}
+              {assistKing && (
+                <div>
+                  <dt>Most assists (league)</dt>
+                  <dd>
+                    {assistKing.name}, {assistKingIsYours ? "your XI" : result.teams[assistKing.team]!.name} ({assistKing.assists})
+                  </dd>
+                </div>
+              )}
+              {user.topAssister && !assistKingIsYours && (
+                <div><dt>Your XI's most assists</dt><dd>{user.topAssister.name} ({user.topAssister.assists})</dd></div>
               )}
             </>
           );
