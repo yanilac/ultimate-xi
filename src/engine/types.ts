@@ -20,7 +20,7 @@ export interface Player {
   /** Season like "2003-04", or null for an Icon. */
   season: string | null;
   club: string | null;
-  /** League the card comes from in the Top 5 mode, like "LaLiga". Null for Premier League history cards and Icons. */
+  /** League the card comes from in the Top 5 mode, like "LaLiga". Null for Premier League draft cards and Icons. */
   league: string | null;
   icon: boolean;
   /** Real league goals per 90 that season, used to pick scorers. */
@@ -42,7 +42,7 @@ export interface Club {
 }
 
 export interface SeasonData {
-  /** "2003-04" in Premier League history, "2026-27 LaLiga" in the Top 5 mode. */
+  /** "2003-04" in Premier League draft, "2026-27 LaLiga" in the Top 5 mode. */
   season: string;
   /** Set in the Top 5 mode. */
   league?: string;

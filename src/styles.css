@@ -299,6 +299,8 @@ h3 { font-size: 16px; margin-top: 8px; }
 .award__name { font-size: 15px; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
 .award__sub { font-size: 12px; color: var(--muted); }
 .result__actions { display: flex; flex-direction: column; gap: 8px; }
+.result__pair { display: grid; grid-template-columns: 3fr 2fr; gap: 8px; }
+.result__pair .btn { padding-left: 8px; padding-right: 8px; white-space: nowrap; }
 .result h3 { text-align: left; }
 
 .crash {
@@ -388,3 +390,5 @@ h3 { font-size: 16px; margin-top: 8px; }
 .submit__row { display: flex; gap: 8px; }
 .submit__input { flex: 1; min-width: 0; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: inherit; font: inherit; font-size: 16px; }
 .submit__done { margin: 0; font-weight: 700; color: var(--accent); }
+.submit--done { text-align: center; }
+.submit--done .submit__row > .btn { flex: 1; }
