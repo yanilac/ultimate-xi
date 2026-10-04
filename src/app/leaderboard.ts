@@ -1,6 +1,6 @@
 /**
  * Shared leaderboard, stored in a Supabase table (see docs/leaderboard.sql).
- * The anon key is public by design: the table only allows reading and adding
+ * The publishable key is public by design: the table only allows reading and adding
  * rows. Every entry carries its run code, and the board replays each run
  * before showing it, so a row whose record doesn't match its replay is hidden.
  */
@@ -10,7 +10,7 @@ import { decodeRun, encodeRun, lineupFromKeys, type RunCode } from "./run";
 
 // Filled in once the Supabase project exists. Empty means the leaderboard is hidden.
 const SUPABASE_URL: string = "";
-const SUPABASE_ANON_KEY: string = "";
+const SUPABASE_ANON_KEY: string = "sb_publishable_WPxuuH2NjxJ5gKFaNrtFag_tUHCcqs-";
 
 export const leaderboardEnabled = SUPABASE_URL !== "" && SUPABASE_ANON_KEY !== "";
 
@@ -39,9 +39,9 @@ export interface Entry {
   created_at: string;
 }
 
+// Publishable keys go in the apikey header only; they aren't JWTs, so no Authorization header.
 const headers = () => ({
   apikey: SUPABASE_ANON_KEY,
-  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
   "Content-Type": "application/json",
 });
 
