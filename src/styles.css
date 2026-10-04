@@ -290,3 +290,5 @@ h3 { font-size: 16px; margin-top: 8px; }
 .badge-club--small { min-width: 24px; height: 14px; font-size: 8px; padding: 0 3px; border-radius: 4px; }
 .slot__badge { position: absolute; top: -7px; right: -6px; display: flex; }
 .version { margin: auto 0 0; padding-top: 16px; font-size: 11px; color: var(--muted); opacity: 0.7; font-variant-numeric: tabular-nums; }
+.slot__offpos { color: var(--link-weak); font-weight: 800; }
+.legend { margin: 0; font-size: 12px; color: var(--muted); text-align: center; }

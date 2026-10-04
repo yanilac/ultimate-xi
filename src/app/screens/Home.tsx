@@ -57,6 +57,7 @@ export function Home({ onPlay, loading }: { onPlay: () => void; loading: boolean
           <li>Pick one of {FORMATIONS.length} formations.</li>
           <li>Each round spins a Premier League club and season. Pick 1 of 4 players and put him in a slot he can play.</li>
           <li>Players from the same club, nation or era link up. Better links mean better chemistry and higher ratings.</li>
+          <li>A player in his main position gets +2 chemistry. Anywhere else he plays at 97.5% of his rating, marked with an amber *.</li>
           <li>Watch out for rare Icon spins: Maradona, Pelé, Messi and more.</li>
           <li>Your XI then plays a full Premier League season, week by week.</li>
         </ol>
