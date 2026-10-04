@@ -188,6 +188,10 @@ export function App() {
             history.replaceState(null, "", location.pathname);
             setScreen({ name: "formation" });
           }}
+          onHome={() => {
+            history.replaceState(null, "", location.pathname);
+            setScreen({ name: "home" });
+          }}
         />
       );
   }

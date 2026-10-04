@@ -16,6 +16,7 @@ export function Result({
   board,
   onBoard,
   onAgain,
+  onHome,
 }: {
   result: SeasonResult;
   formation: string;
@@ -27,6 +28,7 @@ export function Result({
   board: { name: string; status: "sending" | "sent" | "queued" | null; onName: (name: string) => void } | null;
   onBoard: () => void;
   onAgain: () => void;
+  onHome: () => void;
 }) {
   const [status, setStatus] = useState<string | null>(null);
   const { user } = result;
@@ -94,50 +96,51 @@ export function Result({
           {user.badges.map((b) => <span key={b} className="badge">{BADGE_LABEL[b]}</span>)}
         </div>
       )}
-      <dl className="awards">
-        <div><dt>Player of the season</dt><dd>{user.playerOfSeason.name}</dd></div>
+      <div className="awards">
         {(() => {
           const boot = result.topScorers[0];
-          const bootIsYours = boot && boot.team === user.team;
+          const bootIsYours = !!boot && boot.team === user.team;
           const assistKing = result.topAssists[0];
-          const assistKingIsYours = assistKing && assistKing.team === user.team;
+          const assistKingIsYours = !!assistKing && assistKing.team === user.team;
+          const teamName = (t: number) => (t === user.team ? "Your XI" : result.teams[t]!.name);
           return (
             <>
-              {boot && (
-                <div>
-                  <dt>Golden Boot (league top scorer)</dt>
-                  <dd>
-                    {boot.name}, {bootIsYours ? "your XI" : result.teams[boot.team]!.name} ({boot.goals})
-                  </dd>
-                </div>
+              <Award icon="⭐" label="Player of the season" name={user.playerOfSeason.name} sub="Your XI" yours />
+              {boot && <Award icon="👟" label="Golden Boot" name={boot.name} sub={`${teamName(boot.team)} · ${boot.goals} goals`} yours={bootIsYours} />}
+              {assistKing && (
+                <Award icon="🎯" label="Most assists" name={assistKing.name} sub={`${teamName(assistKing.team)} · ${assistKing.assists} assists`} yours={assistKingIsYours} />
               )}
               {user.topScorer && !bootIsYours && (
-                <div><dt>Your XI's top scorer</dt><dd>{user.topScorer.name} ({user.topScorer.goals})</dd></div>
-              )}
-              {assistKing && (
-                <div>
-                  <dt>Most assists (league)</dt>
-                  <dd>
-                    {assistKing.name}, {assistKingIsYours ? "your XI" : result.teams[assistKing.team]!.name} ({assistKing.assists})
-                  </dd>
-                </div>
+                <Award icon="⚽" label="Your top scorer" name={user.topScorer.name} sub={`${user.topScorer.goals} goals`} yours />
               )}
               {user.topAssister && !assistKingIsYours && (
-                <div><dt>Your XI's most assists</dt><dd>{user.topAssister.name} ({user.topAssister.assists})</dd></div>
+                <Award icon="🅰️" label="Your top assister" name={user.topAssister.name} sub={`${user.topAssister.assists} assists`} yours />
               )}
             </>
           );
         })()}
-      </dl>
+      </div>
       {board && <LeaderboardName {...board} onView={onBoard} />}
       <div className="result__actions">
         <button className="btn btn--primary btn--big" onClick={share}>Share result</button>
         <button className="btn btn--ghost" onClick={copy}>Copy replay link</button>
         <button className="btn btn--ghost" onClick={onAgain}>Build another XI</button>
+        <button className="btn btn--ghost" onClick={onHome}>🏠 Home</button>
       </div>
       {status && <p className="hint" role="status">{status}</p>}
       <h3>Final table</h3>
       <MiniTable rows={rows} />
     </main>
+  );
+}
+
+function Award({ icon, label, name, sub, yours }: { icon: string; label: string; name: string; sub: string; yours?: boolean }) {
+  return (
+    <div className={yours ? "award award--yours" : "award"}>
+      <span className="award__icon" aria-hidden>{icon}</span>
+      <span className="award__label">{label}</span>
+      <span className="award__name">{name}</span>
+      <span className="award__sub">{sub}</span>
+    </div>
   );
 }
