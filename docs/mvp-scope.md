@@ -21,11 +21,11 @@ Draft a starting XI one spin at a time from any Premier League season since 1992
 
 ## Core loop (one run, about 5 minutes)
 
-1. **Pick a formation.** Choose from 4-3-3, 4-4-2, 4-2-4, 3-4-3, 3-5-2, 5-3-2 or 5-4-1.
+1. **Pick a formation.** Choose from 4-3-3, 4-4-2, 4-2-4, 3-4-3, 3-5-2, 5-3-2 or 5-4-1. Every slot shows its exact position, for example 4-3-3 is GK, RB, CB, CB, LB, CDM, CM, CM, RW, ST, LW.
 2. **Draft 11 rounds.**
    - Each round spins a random Premier League club and season, for example *Blackburn 1994/95*.
    - You see 4 players from that squad and pick one.
-   - You place him in any open slot he can genuinely play. Wing-backs can cover full-back, and wide midfielders can cover the wings.
+   - You tap an open slot to put him in. He can only go in a slot matching one of his real positions (see Positions below).
    - At least one of the 4 must fit an open slot. If none does, the round re-spins automatically.
    - You get **2 re-spins per run**.
 3. **Icon spin (rare).**
@@ -45,6 +45,18 @@ Draft a starting XI one spin at a time from any Premier League season since 1992
 - **Ratings:** hand-set, around 89 to 95, and shown with a gold card.
 - **Chemistry:** an Icon gets a **weak link to every neighbour**, and a **strong link** to a neighbour of the same nation. He's never a chemistry dead end, but he doesn't fix your team on his own.
 - **Name:** "Icon" is FUT's term. We may want our own word, such as "Legend".
+
+## Positions
+
+- **What each player has:** 1 to 3 real positions, using FIFA codes: GK, RB, CB, LB, RWB, LWB, CDM, CM, CAM, RM, LM, RW, LW, CF and ST. His main position comes first.
+- **Where positions come from:**
+  - For seasons from 2004/05, they come from FIFA's own ratings, using the FIFA edition nearest the season. That covers about 72% of draftable players.
+  - Earlier players were labelled by hand. About 1 in 5 of those labels are guesses for little-known squad players.
+- **Which slots a player can fill:**
+  - Any of his listed positions.
+  - Near neighbours too: full-back and wing-back swap freely, wide midfielders and wingers swap on the same side, and CF and ST swap.
+  - **Natural fit:** his main position, at 100% of his rating.
+  - **Listed alternate or near neighbour:** 95% of his rating.
 
 ## Chemistry (single-league version)
 
