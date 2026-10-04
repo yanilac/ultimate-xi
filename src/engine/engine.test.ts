@@ -129,6 +129,20 @@ describe("draft", () => {
     }
   });
 
+  it("draws each option from a different club and season", () => {
+    for (const seed of ["mix-a", "mix-b", "mix-c"]) {
+      let state = startDraft(seed, "4-3-3", seasons);
+      while (!isComplete(state)) {
+        const spin = state.current!;
+        if (spin.kind === "mixed") {
+          expect(new Set(spin.options.map((p) => `${p.club}@${p.season}`)).size).toBe(4);
+        }
+        const choice = spin.options.find((p) => slotsFor(state, p).length > 0)!;
+        state = pick(state, choice.key, slotsFor(state, choice)[0]!, seasons);
+      }
+    }
+  });
+
   it("allows two re-spins per run", () => {
     let state = startDraft("respin", "4-4-2", seasons);
     state = respin(respin(state, seasons), seasons);

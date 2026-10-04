@@ -9,13 +9,13 @@ export const OPTIONS_PER_SPIN = 4;
 export const RESPINS_PER_RUN = 2;
 /** Chance that a spin is an Icon spin, while the run hasn't had one yet. */
 export const ICON_CHANCE = 0.05;
-/** Options come from the club's best this-many players that season (its regulars). */
+/** Each option comes from its club's best this-many players that season (its regulars). */
 export const SQUAD_POOL = 6;
 /** How many of the options should fit an open slot, when the squad allows. */
 export const MIN_FITTING = 2;
 
 export type Spin =
-  | { kind: "club"; season: string; club: string; options: Player[] }
+  | { kind: "mixed"; options: Player[] }
   | { kind: "icon"; options: Player[] };
 
 export interface DraftState {
@@ -85,27 +85,40 @@ function clubWeight(finish: number, clubs: number): number {
   return 1 + 9 * ((clubs - finish) / clubs) ** 2;
 }
 
-function clubSpin(state: DraftState, f: Formation, rng: Rng, seasons: SeasonData[]): Spin {
-  const used = usedPeople(state);
-  for (let attempt = 0; attempt < 200; attempt++) {
-    const season = rng.pick(seasons);
-    const club = rng.weighted(season.clubs, (c) => clubWeight(c.finish, season.clubs.length));
-    const pool = club.players
-      .filter((p) => p.draftable)
-      .sort((a, b) => b.rating - a.rating)
-      .slice(0, SQUAD_POOL)
-      .filter((p) => !used.has(p.personId));
-    if (pool.length < OPTIONS_PER_SPIN) continue;
-    // Up to MIN_FITTING options that fit an open slot, the rest from anyone in the squad.
-    const fitting = rng.shuffle(pool.filter((p) => fitsSomewhere(state, f, p)));
-    // No one in this squad fits an open slot: re-spin for free.
-    if (fitting.length === 0) continue;
-    const chosen = fitting.slice(0, MIN_FITTING);
-    const rest = rng.shuffle(pool.filter((p) => !chosen.includes(p)));
-    const options = rng.shuffle([...chosen, ...rest].slice(0, OPTIONS_PER_SPIN));
-    return { kind: "club", season: season.season, club: club.name, options };
+/** A random regular from a random club-season, or null if that squad has nobody suitable. */
+function drawOption(
+  rng: Rng,
+  seasons: SeasonData[],
+  taken: Set<string>,
+  clubsUsed: Set<string>,
+  accept: (p: Player) => boolean,
+): Player | null {
+  const season = rng.pick(seasons);
+  const club = rng.weighted(season.clubs, (c) => clubWeight(c.finish, season.clubs.length));
+  if (clubsUsed.has(`${club.name}@${season.season}`)) return null;
+  const pool = club.players
+    .filter((p) => p.draftable)
+    .sort((a, b) => b.rating - a.rating)
+    .slice(0, SQUAD_POOL)
+    .filter((p) => !taken.has(p.personId) && accept(p));
+  return pool.length > 0 ? rng.pick(pool) : null;
+}
+
+/** Four players, each from a different club and season. At least MIN_FITTING fit an open slot. */
+function mixedSpin(state: DraftState, f: Formation, rng: Rng, seasons: SeasonData[]): Spin {
+  const taken = usedPeople(state);
+  const clubsUsed = new Set<string>();
+  const options: Player[] = [];
+  for (let attempt = 0; attempt < 500 && options.length < OPTIONS_PER_SPIN; attempt++) {
+    const needsFit = options.length < MIN_FITTING;
+    const p = drawOption(rng, seasons, taken, clubsUsed, (x) => !needsFit || fitsSomewhere(state, f, x));
+    if (!p) continue;
+    options.push(p);
+    taken.add(p.personId);
+    clubsUsed.add(`${p.club}@${p.season}`);
   }
-  throw new Error("no club spin could fill an open slot");
+  if (options.length < OPTIONS_PER_SPIN) throw new Error("couldn't find four players for a spin");
+  return { kind: "mixed", options: rng.shuffle(options) };
 }
 
 function spin(state: DraftState, seasons: SeasonData[]): DraftState {
@@ -114,7 +127,7 @@ function spin(state: DraftState, seasons: SeasonData[]): DraftState {
   const rng = createRng(`${state.seed}:spin:${state.spinCount}`);
   let current: Spin | null = null;
   if (!state.iconSpinUsed && rng.next() < ICON_CHANCE) current = iconSpin(state, f, rng);
-  current ??= clubSpin(state, f, rng, seasons);
+  current ??= mixedSpin(state, f, rng, seasons);
   return {
     ...state,
     current,

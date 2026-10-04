@@ -18,7 +18,7 @@ export const CLUB_CHEM_BONUS = 0;
  * a good draft wins the league. Set for "Generous": a well-drafted XI wins about
  * 1 in 3 seasons and an unbeaten season is a realistic chase.
  */
-export const USER_BONUS = 3;
+export const USER_BONUS = 0;
 
 type Line = "G" | "D" | "M" | "F";
 

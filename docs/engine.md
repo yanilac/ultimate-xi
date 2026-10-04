@@ -14,11 +14,10 @@ The engine is plain TypeScript in `src/engine/`, with no UI code, so it can be t
 ## Draft rules
 
 - **League:** at the start, a seeded spin picks the Premier League season the XI will play in.
-- **Club spins:** each round spins a random season, then a club in it.
-  - Clubs that finished higher come up much more often: the champions about 10 times as often as the bottom club.
-  - You're offered 4 of that club's best 6 draftable players that season.
-  - When the squad allows, at least 2 of the 4 fit one of your open slots.
-  - If nobody in the squad fits an open slot, it re-spins for free.
+- **Spins:** you tap Spin to start each round. A spin offers 4 players, each from a different random club and season.
+  - For each card, a random season is drawn, then a club in it. Clubs that finished higher come up much more often: the champions about 10 times as often as the bottom club.
+  - The card is one of that club's best 6 draftable players that season.
+  - At least 2 of the 4 fit one of your open slots.
 - **Icon spins:** a spin has a 5% chance to be an Icon spin instead, at most once per run. About 4 runs in 10 get one. It offers 4 Icons, at least one of which fits an open slot.
 - **Duplicates:** the same person can never appear twice in one XI, across seasons or between an Icon and his Premier League card.
 - **Re-spins:** you get 2 per run.
@@ -35,7 +34,7 @@ The engine is plain TypeScript in `src/engine/`, with no UI code, so it can be t
 ## Season sim
 
 - **The league:** your XI replaces a random bottom-half club in the chosen season. The other clubs field their real best XI in a 4-4-2 shape, at their real ratings.
-- **Difficulty:** every player in your XI gets `USER_BONUS` (+3) on top of his effective rating. Real clubs are tuned to replay real seasons accurately, so this one constant sets how often a good draft wins. It's set for "Generous": good drafts win about 1 in 3 seasons.
+- **Difficulty:** every player in your XI gets `USER_BONUS` on top of his effective rating. Real clubs are tuned to replay real seasons accurately, so this one constant sets how often a good draft wins. It's set for "Generous": good drafts win about 1 in 3 seasons. With 4 clubs per spin, drafts are strong enough that this needs no bonus, so it is 0.
 - **Team strength:** attack and defence are weighted averages of effective ratings by line.
   - Attack weights: forwards 3, midfielders 2, defenders 0.5.
   - Defence weights: keeper 3, defenders 2, midfielders 1.
@@ -54,9 +53,9 @@ Real seasons replayed (3x each, points per 38 games):
   champions' points sim 89.1 vs real 86.8
   goals per game 2.66 (real Premier League is about 2.6 to 2.8)
 
-casual bot (random fitting pick):  78 pts, titles 22%, top 4 78%
-greedy bot (highest rating):       80 pts, titles 31%, top 4 84%
-smart bot (rating + chemistry):    83 pts, titles 39%, top 4 91%, unbeaten 2 in 300
+casual bot (random fitting pick):  68 pts, titles 5%,  top 4 46%
+greedy bot (highest rating):       81 pts, titles 27%, top 4 88%
+smart bot (rating + chemistry):    83 pts, titles 41%, top 4 91%, unbeaten 2 in 300
 ```
 
 The match model matches real Premier League seasons. With the Generous setting, a good draft wins the league about 1 in 3 times. An unbeaten season is rare but reachable, and a planned XI with high chemistry and an Icon is the way to chase 38-0-0. The bots only look one pick ahead. Difficulty is set by `USER_BONUS` in `season.ts`. `SQUAD_POOL`, club weighting and the chemistry constants change how strong drafts are.

@@ -24,7 +24,9 @@ export function PlayerCard({
       <span className="card__rating">{player.rating}</span>
       <span className="card__pos">{player.positions.join(" · ")}</span>
       <span className="card__name">{player.name}</span>
-      {player.icon && <span className="card__meta">Icon</span>}
+      <span className="card__club">
+        {player.icon ? "Icon" : `${player.club} ${player.season?.replace("-", "/")}`}
+      </span>
       <span className="card__meta">{player.nation ?? ""}</span>
       {!player.icon && (
         <span className="card__stats">
