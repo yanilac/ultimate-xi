@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { simulateSeason, startDraft, type DraftState, type Lineup, type SeasonData, type SeasonResult } from "../engine";
 import { addSeason, readCareer, saveCareer, type Career } from "./career";
 import { CareerStrip } from "./components/CareerStrip";
 import { loadSeasons } from "./data";
+import { modeOfSeason, readMode, saveMode, type Mode } from "./modes";
 import { lineupFromKeys, newSeed, runFromLocation, shareUrl, type RunCode } from "./run";
 import { Draft } from "./screens/Draft";
 import { FormationPicker } from "./screens/FormationPicker";
@@ -19,14 +20,29 @@ type Screen =
   | { name: "result"; run: RunCode; lineup: Lineup; result: SeasonResult; own: boolean };
 
 export function App() {
-  const [seasons, setSeasons] = useState<SeasonData[] | null>(null);
+  // A replay link decides the mode; otherwise it's whatever you played last.
+  const [mode, setMode] = useState<Mode>(() => {
+    const run = runFromLocation();
+    return run ? modeOfSeason(run.league) : readMode();
+  });
+  const [loaded, setLoaded] = useState<{ mode: Mode; data: SeasonData[] } | null>(null);
+  const seasons = loaded?.mode === mode ? loaded.data : null;
   const [error, setError] = useState<string | null>(null);
   const [screen, setScreen] = useState<Screen>({ name: "home" });
-  const [career, setCareer] = useState<Career>(readCareer);
+  const [career, setCareer] = useState<Career>(() => readCareer(mode));
 
   useEffect(() => {
-    loadSeasons().then(setSeasons, () => setError("Couldn't load the player data. Check your connection and reload."));
-  }, []);
+    loadSeasons(mode).then(
+      (data) => setLoaded({ mode, data }),
+      () => setError("Couldn't load the player data. Check your connection and reload."),
+    );
+  }, [mode]);
+
+  const chooseMode = (m: Mode) => {
+    setMode(m);
+    saveMode(m);
+    setCareer(readCareer(m));
+  };
 
   // own: drafted on this device, so it counts toward your record. Replays of shared links don't.
   const playRun = (run: RunCode, lineup: Lineup, data: SeasonData[], own: boolean) => {
@@ -36,9 +52,11 @@ export function App() {
     setScreen({ name: "season", run, lineup, result, own });
   };
 
-  // A shared replay link goes straight to that run's season.
+  // A shared replay link goes straight to that run's season, once, when its data arrives.
+  const replayed = useRef(false);
   useEffect(() => {
-    if (!seasons) return;
+    if (!seasons || replayed.current) return;
+    replayed.current = true;
     const run = runFromLocation();
     if (!run) return;
     const lineup = lineupFromKeys(run.xi, seasons);
@@ -71,7 +89,7 @@ export function App() {
   function renderScreen() {
   switch (screen.name) {
     case "home":
-      return <Home loading={!seasons} onPlay={() => setScreen({ name: "formation" })} />;
+      return <Home mode={mode} onMode={chooseMode} loading={!seasons} onPlay={() => setScreen({ name: "formation" })} />;
     case "formation":
       return (
         <FormationPicker
@@ -103,7 +121,7 @@ export function App() {
             saveLastResult({ record: recordText(result), position: result.user.position, season: result.season });
             if (own) {
               const next = addSeason(career, run.seed, result.user.position, result.user.row.lost === 0);
-              saveCareer(next);
+              saveCareer(modeOfSeason(run.league), next);
               setCareer(next);
             }
             setScreen({ ...screen, name: "result" });

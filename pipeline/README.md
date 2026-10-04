@@ -37,3 +37,7 @@ All the weights are constants at the top of `build.py`, ready to tune.
 - The top of the scale is about 91 (Haaland 2022-23, Henry 2002-05).
 
 Players with 10 or more appearances in a season are marked draftable. Players with fewer than 3 appearances are dropped.
+
+## Top 5 leagues (current season)
+
+`build_current.py` builds the Top 5 mode from the EA FC 27 ratings snapshot (September 2026) in `raw/fc27_players.csv`, from the public [EA_FC_ANALYSIS](https://github.com/LakshmiKanth11/EA_FC_ANALYSIS) dataset. It keeps each club's best 23 men, maps EA's licensed-out names to real ones (`CLUB_NAMES`), and ranks clubs by their best 14 ratings. The season hasn't been played, so goals and assists per 90 are estimated from finishing, positioning, vision, passing and crossing. Output goes to `public/data/top5/`.

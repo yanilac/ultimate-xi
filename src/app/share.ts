@@ -1,5 +1,5 @@
 import { getFormation, type Badge, type Lineup, type SeasonResult } from "../engine";
-import { seasonLabel } from "./data";
+import { leagueTitle } from "./data";
 
 export const BADGE_LABEL: Record<Badge, string> = {
   perfect: "Perfect season",
@@ -36,7 +36,7 @@ export async function drawShareCard(result: SeasonResult, formationName: string,
   };
 
   text("ULTIMATE XI", W / 2, 110, 44, "#9fe3b8", 800);
-  text(`${seasonLabel(result.season)} Premier League`, W / 2, 170, 34, "#cfe9d9", 500);
+  text(leagueTitle(result.season), W / 2, 170, 34, "#cfe9d9", 500);
   text(recordText(result), W / 2, 330, 150, "#ffffff", 900);
   const pos = result.user.position;
   const suffix = ["th", "st", "nd", "rd"][(pos % 100 - 20) % 10] ?? ["th", "st", "nd", "rd"][pos % 100] ?? "th";

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { MatchResult, SeasonResult } from "../../engine";
-import { seasonLabel } from "../data";
+import { leagueTitle } from "../data";
 import { ordinal } from "./Home";
 
 const WEEK_MS = 650;
@@ -92,7 +92,7 @@ export function Season({ result, onDone }: { result: SeasonResult; onDone: () =>
   return (
     <main className="screen season">
       <header className="topbar">
-        <span className="eyebrow">{seasonLabel(result.season)} Premier League</span>
+        <span className="eyebrow">{leagueTitle(result.season)}</span>
         <span className="topbar__round">Week {week}/{total}</span>
       </header>
       <div className="record">

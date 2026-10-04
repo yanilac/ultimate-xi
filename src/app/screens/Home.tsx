@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { HowToPlay } from "../components/HowToPlay";
+import { MODES, type Mode } from "../modes";
 
 export interface LastResult {
   record: string;
@@ -31,15 +32,39 @@ function ordinal(n: number): string {
 }
 export { ordinal };
 
-export function Home({ onPlay, loading }: { onPlay: () => void; loading: boolean }) {
+export function Home({
+  mode,
+  onMode,
+  onPlay,
+  loading,
+}: {
+  mode: Mode;
+  onMode: (m: Mode) => void;
+  onPlay: () => void;
+  loading: boolean;
+}) {
   const [help, setHelp] = useState(false);
   const last = readLastResult();
   return (
     <main className="screen home">
       <div className="home__hero">
-        <p className="eyebrow">Premier League 1992 to today</p>
         <h1 className="home__title">Ultimate XI</h1>
-        <p className="home__tag">Draft a team from any season. Play a full league season. Can you go 38-0-0?</p>
+        <p className="home__tag">Draft a team, play a full league season. Can you go unbeaten?</p>
+      </div>
+      <div className="modes" role="radiogroup" aria-label="Game mode">
+        {MODES.map((m) => (
+          <button
+            key={m.id}
+            type="button"
+            role="radio"
+            aria-checked={m.id === mode}
+            className={m.id === mode ? "mode mode--on" : "mode"}
+            onClick={() => onMode(m.id)}
+          >
+            <span className="mode__name">{m.name}</span>
+            <span className="mode__blurb">{m.blurb}</span>
+          </button>
+        ))}
       </div>
       <button className="btn btn--primary btn--big" onClick={onPlay} disabled={loading}>
         {loading ? "Loading players…" : "Play"}

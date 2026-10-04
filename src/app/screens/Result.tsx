@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Lineup, SeasonResult } from "../../engine";
 import type { Career } from "../career";
-import { seasonLabel } from "../data";
+import { leagueTitle, seasonLabel } from "../data";
 import { BADGE_LABEL, drawShareCard, recordText } from "../share";
 import { ordinal } from "./Home";
 import { MiniTable, tableAfter } from "./Season";
@@ -76,7 +76,7 @@ export function Result({
 
   return (
     <main className="screen result">
-      <p className="eyebrow">{seasonLabel(result.season)} Premier League</p>
+      <p className="eyebrow">{leagueTitle(result.season)}</p>
       <h1 className="result__record">{recordText(result)}</h1>
       <p className="result__headline">{headline}</p>
       {streakLine && <p className={user.position === 1 ? "result__streak result__streak--win" : "result__streak"}>{streakLine}</p>}

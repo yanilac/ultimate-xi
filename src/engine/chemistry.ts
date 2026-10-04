@@ -11,17 +11,21 @@ export const ERA_YEARS = 4;
 /**
  * Strong: same club (any season), or same nation and same era.
  * Weak: same nation, or same era.
+ * In the Top 5 mode every card is from the same season, so the league plays the
+ * part of the era: strong for same nation and same league, weak for same league.
  * Icons link weakly to everyone and strongly to their own nation.
  */
 export function linkStrength(a: Player, b: Player): LinkStrength {
   const sameNation = a.nation !== null && a.nation === b.nation;
   if (a.icon || b.icon) return sameNation ? "strong" : "weak";
   const sameClub = a.club !== null && a.club === b.club;
-  const sameEra =
-    a.season !== null && b.season !== null &&
-    Math.abs(seasonStart(a.season) - seasonStart(b.season)) <= ERA_YEARS;
-  if (sameClub || (sameNation && sameEra)) return "strong";
-  if (sameNation || sameEra) return "weak";
+  const sameGroup =
+    a.league !== null && b.league !== null
+      ? a.league === b.league
+      : a.season !== null && b.season !== null &&
+        Math.abs(seasonStart(a.season) - seasonStart(b.season)) <= ERA_YEARS;
+  if (sameClub || (sameNation && sameGroup)) return "strong";
+  if (sameNation || sameGroup) return "weak";
   return "none";
 }
 

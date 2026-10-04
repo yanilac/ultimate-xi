@@ -31,12 +31,16 @@ export function PlayerCard({
         ) : (
           <>
             <ClubBadge club={player.club} />
-            <span className="card__clubname"><b>{player.season?.replace("-", "/")}</b> {player.club}</span>
+            <span className="card__clubname">
+              {!player.league && <b>{player.season?.replace("-", "/")} </b>}
+              {player.club}
+            </span>
           </>
         )}
       </span>
-      <span className="card__meta">{player.nation ?? ""}</span>
-      {!player.icon && (
+      <span className="card__meta">{[player.nation, player.league].filter(Boolean).join(" · ")}</span>
+      {/* Top 5 cards are this season's ratings, so there are no season stats to show yet. */}
+      {!player.icon && !player.league && (
         <span className="card__stats">
           {player.apps} apps · {player.goals} g · {player.assists} a
         </span>

@@ -82,6 +82,13 @@ h3 { font-size: 16px; margin-top: 8px; }
 .home__hero { margin-top: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
 .home__title { font-size: 48px; font-weight: 900; letter-spacing: -0.02em; }
 .home__tag { margin: 0; color: var(--muted); font-size: 17px; line-height: 1.4; }
+.modes { display: grid; gap: 10px; text-align: left; }
+.mode { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: var(--radius); border: 2px solid var(--line); background: var(--bg-raised); color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.mode__name { font-weight: 800; font-size: 16px; }
+.mode__name::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 8px; border-radius: 50%; border: 2px solid var(--muted); vertical-align: 0; }
+.mode__blurb { font-size: 13px; line-height: 1.35; color: var(--muted); }
+.mode--on { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(61, 220, 132, 0.25); }
+.mode--on .mode__name::before { background: var(--accent); border-color: var(--accent); }
 .home__last { margin: 0; color: var(--muted); font-size: 14px; }
 .howto { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; text-align: left; }
 .howto__step { display: grid; grid-template-columns: 112px 1fr; gap: 12px; align-items: center; background: var(--bg-raised); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; }

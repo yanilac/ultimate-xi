@@ -11,7 +11,7 @@ const seasons = loadSeasons();
 function card(over: Partial<Player>): Player {
   return {
     key: "x", personId: "x", name: "X", role: "M", positions: ["CM"], nation: "England",
-    rating: 80, season: "2003-04", club: "Arsenal", icon: false, goalsPer90: 0.1, assistsPer90: 0.1,
+    rating: 80, season: "2003-04", club: "Arsenal", league: null, icon: false, goalsPer90: 0.1, assistsPer90: 0.1,
     apps: 30, goals: 3, assists: 3, minutes: 2500, draftable: true, ...over,
   };
 }
@@ -85,6 +85,17 @@ describe("chemistry", () => {
     expect(linkStrength(henry, card({ club: "Chelsea", nation: "France", season: "2020-21" }))).toBe("weak");
     expect(linkStrength(henry, card({ club: "Chelsea", nation: "Spain", season: "2006-07" }))).toBe("weak");
     expect(linkStrength(henry, card({ club: "Chelsea", nation: "Spain", season: "2020-21" }))).toBe("none");
+  });
+
+  it("uses the league instead of the era for Top 5 cards", () => {
+    const top5 = (club: string, nation: string, league: string) =>
+      card({ club, nation, league, season: `2026-27 ${league}` });
+    const pedri = top5("Barcelona", "Spain", "LaLiga");
+    expect(linkStrength(pedri, top5("Barcelona", "Poland", "LaLiga"))).toBe("strong");
+    expect(linkStrength(pedri, top5("Real Madrid", "Spain", "LaLiga"))).toBe("strong");
+    expect(linkStrength(pedri, top5("Arsenal", "Spain", "Premier League"))).toBe("weak");
+    expect(linkStrength(pedri, top5("Sevilla", "France", "LaLiga"))).toBe("weak");
+    expect(linkStrength(pedri, top5("Inter", "France", "Serie A"))).toBe("none");
   });
 
   it("gives Icons a weak link to anyone and a strong one to their nation", () => {
