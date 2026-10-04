@@ -1,4 +1,4 @@
-import type { Formation, Lineup, TeamChemistry } from "../../engine";
+import { FIT_NATURAL, positionFit, type Formation, type Lineup, type TeamChemistry } from "../../engine";
 import { ClubBadge } from "./ClubBadge";
 import { shortName } from "./PlayerCard";
 
@@ -86,7 +86,14 @@ export function Pitch({
                 })()}
                 <span className="slot__name">{shortName(player.name)}</span>
                 <span className="slot__chem">
-                  {slot.pos} · {sc?.chem ?? 0}
+                  {positionFit(player, slot.pos) === FIT_NATURAL ? (
+                    slot.pos
+                  ) : (
+                    <span className="slot__offpos" title={`Out of position: his main position is ${player.positions[0]}`}>
+                      {slot.pos}*
+                    </span>
+                  )}{" "}
+                  · {sc?.chem ?? 0}
                 </span>
               </>
             ) : (

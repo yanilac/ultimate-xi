@@ -1,6 +1,6 @@
 import { FORMATIONS, type Formation } from "../../engine";
 
-function MiniPitch({ formation }: { formation: Formation }) {
+export function MiniPitch({ formation }: { formation: Formation }) {
   return (
     <svg viewBox="0 0 100 120" className="mini-pitch" aria-hidden>
       <rect x="1" y="1" width="98" height="118" rx="6" className="mini-pitch__grass" />

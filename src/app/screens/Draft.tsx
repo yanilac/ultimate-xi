@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  getFormation, isComplete, pick, respin, slotsFor, swap, teamChemistry, canPlay,
+  FIT_NATURAL, positionFit, getFormation, isComplete, pick, respin, slotsFor, swap, teamChemistry, canPlay,
   type DraftState, type SeasonData,
 } from "../../engine";
 import { Pitch } from "../components/Pitch";
@@ -132,6 +132,14 @@ export function Draft({
         onSlotTap={tapSlot}
       />
 
+      {formation.slots.some((sl, i) => {
+        const p = state.lineup[i];
+        return p && positionFit(p, sl.pos) !== FIT_NATURAL;
+      }) && (
+        <p className="legend">
+          <span className="slot__offpos">CM*</span> = out of his main position: no +2 position chem, and 2.5% off his rating.
+        </p>
+      )}
       <p className="hint" role="status">
         {message ??
           (complete
