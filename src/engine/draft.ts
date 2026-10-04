@@ -6,7 +6,7 @@ import type { Lineup } from "./chemistry";
 import type { Player, SeasonData } from "./types";
 
 export const OPTIONS_PER_SPIN = 4;
-export const RESPINS_PER_RUN = 2;
+export const RESPINS_PER_RUN = 3;
 /** Chance that a spin is an Icon spin, while the run hasn't had one yet. */
 export const ICON_CHANCE = 0.05;
 /** Each option comes from its club's best this-many players that season (its regulars). */

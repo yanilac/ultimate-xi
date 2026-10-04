@@ -27,7 +27,7 @@ Draft a starting XI one spin at a time from any Premier League season since 1992
    - You see 4 players from that squad and pick one.
    - You tap an open slot to put him in. He can only go in a slot matching one of his real positions (see Positions below).
    - At least one of the 4 must fit an open slot. If none does, the round re-spins automatically.
-   - You get **2 re-spins per run**.
+   - You get **3 re-spins per run**.
 3. **Icon spin (rare).**
    - Any round has about a 5% chance of becoming an Icon spin. You get at most one Icon spin per run, so roughly 4 runs in 10 see one.
    - Instead of a club, you're shown 4 Icons and pick one.

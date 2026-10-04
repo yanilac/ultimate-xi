@@ -154,9 +154,9 @@ describe("draft", () => {
     }
   });
 
-  it("allows two re-spins per run", () => {
+  it("allows three re-spins per run", () => {
     let state = startDraft("respin", "4-4-2", seasons);
-    state = respin(respin(state, seasons), seasons);
+    state = respin(respin(respin(state, seasons), seasons), seasons);
     expect(state.respinsLeft).toBe(0);
     expect(() => respin(state, seasons)).toThrow();
   });

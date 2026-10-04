@@ -31,7 +31,7 @@ export function HowToPlay() {
       <Step n={1} title="Pick a formation" text={`${FORMATIONS.length} shapes, from 4-3-3 to 5-4-1. Every slot is a real position.`}>
         <span className="howto__pitch"><MiniPitch formation={f} /></span>
       </Step>
-      <Step n={2} title="Spin and pick" text="Tap Spin to get 4 players, each from a different club. Pick 1 and drop him in a slot he can play. 11 rounds, 2 re-spins.">
+      <Step n={2} title="Spin and pick" text="Tap Spin to get 4 players, each from a different club. Pick 1 and drop him in a slot he can play. 11 rounds, 3 re-spins.">
         <span className="howto__spin">Spin</span>
         <span className="howto__cards">
           <MiniCard rating={86} club="Arsenal" />
