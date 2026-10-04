@@ -66,7 +66,24 @@ export function Pitch({
                     <ClubBadge club={player.club} small />
                   </span>
                 )}
-                <span className="slot__rating">{Math.round(sc?.effective ?? player.rating)}</span>
+                {(() => {
+                  const effective = Math.round(sc?.effective ?? player.rating);
+                  const delta = effective - player.rating;
+                  return (
+                    <span className="slot__rating">
+                      {effective}
+                      {delta !== 0 && (
+                        <span
+                          className={delta > 0 ? "slot__delta slot__delta--up" : "slot__delta slot__delta--down"}
+                          title={`Base rating ${player.rating}`}
+                        >
+                          {delta > 0 ? "▲" : "▼"}
+                          {Math.abs(delta)}
+                        </span>
+                      )}
+                    </span>
+                  );
+                })()}
                 <span className="slot__name">{shortName(player.name)}</span>
                 <span className="slot__chem">
                   {slot.pos} · {sc?.chem ?? 0}
