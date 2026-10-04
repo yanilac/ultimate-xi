@@ -4,6 +4,7 @@ create table public.scores (
   created_at timestamptz not null default now(),
   mode text not null check (mode in ('top5', 'pl')),
   name text not null check (char_length(name) between 1 and 16),
+  player text check (char_length(player) <= 40),
   season text not null check (char_length(season) <= 40),
   formation text not null check (char_length(formation) <= 12),
   won int not null check (won between 0 and 38),
