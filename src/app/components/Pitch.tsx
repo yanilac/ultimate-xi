@@ -33,7 +33,8 @@ export function Pitch({
               key={`${a}-${b}`}
               x1={sa.x} y1={top(sa.y)} x2={sb.x} y2={top(sb.y)}
               stroke={link ? LINK_COLOUR[link.strength] : "var(--link-empty)"}
-              strokeWidth={link ? 0.9 : 0.5}
+              strokeWidth={link ? 3 : 1.5}
+              strokeLinecap="round"
               vectorEffect="non-scaling-stroke"
             />
           );

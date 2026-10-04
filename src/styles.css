@@ -14,7 +14,7 @@
   --link-strong: #3ddc84;
   --link-weak: #f2c14e;
   --link-none: #ff6b6b;
-  --link-empty: rgba(255, 255, 255, 0.18);
+  --link-empty: rgba(255, 255, 255, 0.28);
   --radius: 14px;
   color-scheme: dark;
 }
