@@ -71,3 +71,18 @@ describe("leaderboard", () => {
     expect(periodStart("all", wed)).toBeNull();
   });
 });
+
+describe("person record", () => {
+  it("counts titles, streaks and seasons from verified seasons only", async () => {
+    const { personRecord } = await import("./leaderboard");
+    const all: Entry[] = [];
+    for (let i = 0; all.length < 6 && i < 300; i++) all.push(entryFor(`rec-${i}`));
+    const fake = { ...all[0]!, seed: "fake-rec", position: 1, won: 38, drawn: 0, lost: 0 };
+    const rec = personRecord([...all, fake], seasons);
+    expect(rec.seasons).toBe(all.length);
+    expect(rec.titles).toBe(all.filter((e) => e.position === 1).length);
+    let streak = 0;
+    for (const e of all) streak = e.position === 1 ? streak + 1 : 0;
+    expect(rec.streak).toBe(streak);
+  });
+});

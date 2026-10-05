@@ -8,6 +8,7 @@
  */
 import { simulateSeason, type SeasonData, type SeasonResult } from "../engine";
 import { modeOfSeason, type Mode } from "./modes";
+import { addSeason, EMPTY_CAREER, type Career } from "./career";
 import { decodeRun, encodeRun, lineupFromKeys, type RunCode } from "./run";
 
 // Public values for the Supabase project. Empty would hide the leaderboard.
@@ -145,6 +146,44 @@ export function buildBoard(entries: Entry[], seasons: SeasonData[]): BoardRow[] 
   return [...rows.values()].sort((a, b) =>
     b.titles - a.titles || pointsPerGame(b.best) - pointsPerGame(a.best) || b.best.gd - a.best.gd,
   );
+}
+
+// PostgREST filter value in double quotes, so commas and brackets in names are safe.
+const quoted = (v: string) => `"${v.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+// Case-insensitive name match. * is ilike's wildcard, so it's dropped; % and _ in a name could match loosely.
+const nameMatch = (name: string) => `name.ilike.${quoted(name.trim().replace(/\*/g, ""))}`;
+
+/** Every season a person has played in a mode, oldest first. */
+export async function fetchPersonSeasons(mode: Mode, row: Pick<BoardRow, "key" | "name">): Promise<Entry[]> {
+  const get = async (filter: [string, string]) => {
+    const q = new URLSearchParams({ select: "*", mode: `eq.${mode}`, order: "created_at.asc", limit: "1000" });
+    q.set(...filter);
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/scores?${q}`, { headers: headers() });
+    if (!res.ok) throw Object.assign(new Error(`leaderboard ${res.status}`), { status: res.status });
+    return (await res.json()) as Entry[];
+  };
+  const byName: [string, string] = ["or", `(${nameMatch(row.name)})`];
+  if (!row.key.startsWith("p:")) return get(byName);
+  const player = row.key.slice(2);
+  try {
+    // Their device's seasons, plus older name-only rows under the same name (as the board counts them).
+    return await get(["or", `(player.eq.${quoted(player)},and(player.is.null,${nameMatch(row.name)}))`]);
+  } catch (e) {
+    // A table without the player column: fall back to the name.
+    if ((e as { status?: number }).status === 400) return get(byName);
+    throw e;
+  }
+}
+
+/** A person's record from their seasons (oldest first), counting only seasons whose replay checks out. */
+export function personRecord(entries: Entry[], seasons: SeasonData[]): Career {
+  let career = EMPTY_CAREER;
+  for (const e of entries) {
+    let ok = verified.get(e.seed);
+    if (ok === undefined) verified.set(e.seed, (ok = verifyEntry(e, seasons)));
+    if (ok) career = addSeason(career, e.seed, e.position, e.lost === 0);
+  }
+  return career;
 }
 
 type Body = Record<string, string | number>;
