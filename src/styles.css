@@ -392,3 +392,6 @@ h3 { font-size: 16px; margin-top: 8px; }
 .submit__done { margin: 0; font-weight: 700; color: var(--accent); }
 .submit--done { text-align: center; }
 .submit--done .submit__row > .btn { flex: 1; }
+.board__record { margin: 4px 0 2px; }
+.board__record.career-strip { position: static; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius); font-size: 13px; flex-wrap: wrap; row-gap: 4px; }
+.board__record.career-strip b { font-size: 16px; }

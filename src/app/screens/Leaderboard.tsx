@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import type { SeasonData } from "../../engine";
 import { seasonLabel } from "../data";
-import { buildBoard, fetchTitles, PERIODS, playerId, type BoardRow, type Period } from "../leaderboard";
+import type { Career } from "../career";
+import { buildBoard, fetchPersonSeasons, fetchTitles, PERIODS, personRecord, playerId, type BoardRow, type Period } from "../leaderboard";
 import { MODES, type Mode } from "../modes";
-import { decodeRun, shareUrl } from "../run";
 
 export function Leaderboard({
   mode,
@@ -20,6 +20,7 @@ export function Leaderboard({
   const [period, setPeriod] = useState<Period>("today");
   const [rows, setRows] = useState<BoardRow[] | null>(null);
   const [error, setError] = useState(false);
+  const [openKey, setOpenKey] = useState<string | null>(null);
   const me = `p:${playerId()}`;
 
   useEffect(() => {
@@ -27,6 +28,7 @@ export function Leaderboard({
     let live = true;
     setRows(null);
     setError(false);
+    setOpenKey(null);
     fetchTitles(mode, period).then(
       (entries) => live && setRows(buildBoard(entries, seasons).slice(0, 50)),
       () => live && setError(true),
@@ -36,12 +38,6 @@ export function Leaderboard({
     };
   }, [mode, period, seasons]);
 
-  const open = (row: BoardRow) => {
-    const run = decodeRun(row.best.link);
-    if (!run) return;
-    location.href = shareUrl(run);
-    location.reload();
-  };
 
   return (
     <main className="screen board">
@@ -73,7 +69,7 @@ export function Leaderboard({
         <ol className="board__list">
           {rows.map((row, i) => (
             <li key={row.key}>
-              <button type="button" className={row.key === me ? "board__row board__row--mine" : "board__row"} onClick={() => open(row)}>
+              <button type="button" className={row.key === me ? "board__row board__row--mine" : "board__row"} onClick={() => setOpenKey(openKey === row.key ? null : row.key)} aria-expanded={openKey === row.key}>
                 <span className="board__rank">{i + 1}</span>
                 <span className="board__who">
                   <b>{row.name}</b>
@@ -86,11 +82,46 @@ export function Leaderboard({
                   <small>{row.titles === 1 ? "title" : "titles"}</small>
                 </span>
               </button>
+              {openKey === row.key && seasons && <PersonRecord mode={mode} row={row} seasons={seasons} />}
             </li>
           ))}
         </ol>
       )}
-      <p className="hint board__note">Ranked by titles. Ties go to the best title season (points per game, then goal difference). Tap a row to watch that season.</p>
+      <p className="hint board__note">Ranked by titles. Ties go to the best title season (points per game, then goal difference). Tap a name to see their record.</p>
     </main>
+  );
+}
+
+/** A person's all-time record in this mode, laid out like your own record bar. */
+function PersonRecord({ mode, row, seasons }: { mode: Mode; row: BoardRow; seasons: SeasonData[] }) {
+  const [record, setRecord] = useState<Career | null>(null);
+  const [error, setError] = useState(false);
+  useEffect(() => {
+    let live = true;
+    fetchPersonSeasons(mode, row).then(
+      (entries) => live && setRecord(personRecord(entries, seasons)),
+      () => live && setError(true),
+    );
+    return () => {
+      live = false;
+    };
+  }, [mode, row, seasons]);
+
+  if (error) return <p className="hint board__record">Couldn't load {row.name}'s record.</p>;
+  if (!record) return <p className="hint board__record">Loading…</p>;
+  return (
+    <div className="board__record career-strip" aria-label={`${row.name}'s record`}>
+      <span className="career-strip__item">
+        <span className="career-strip__trophy" aria-hidden>🏆</span>
+        <b>{record.titles}</b> {record.titles === 1 ? "title" : "titles"}
+      </span>
+      <span className={record.streak > 0 ? "career-strip__item career-strip__item--hot" : "career-strip__item"}>
+        <b>{record.streak}</b> in a row
+        {record.bestStreak > 0 && <span className="career-strip__best"> (best {record.bestStreak})</span>}
+      </span>
+      <span className="career-strip__item">
+        <b>{record.seasons}</b> {record.seasons === 1 ? "season" : "seasons"}
+      </span>
+    </div>
   );
 }
