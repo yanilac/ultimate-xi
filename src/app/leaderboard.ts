@@ -67,12 +67,26 @@ export function periodStart(period: Period, now = new Date()): Date | null {
   return d;
 }
 
+// Seasons being sent right now. The board waits for them so your latest season shows.
+const inFlight = new Set<Promise<unknown>>();
+function track<T>(p: Promise<T>): Promise<T> {
+  inFlight.add(p);
+  void p.finally(() => inFlight.delete(p)).catch(() => {});
+  return p;
+}
+
+// Board reads must never come from a browser or CDN cache, or today's seasons go missing.
+const getRows = (url: string) => fetch(url, { headers: headers(), cache: "no-store" });
+
 /** Every title won in a mode during the period, newest first. */
 export async function fetchTitles(mode: Mode, period: Period): Promise<Entry[]> {
+  // Seasons that couldn't be sent earlier get another go first.
+  if (readPending().length > 0) void flushPending();
+  await Promise.allSettled([...inFlight]);
   const q = new URLSearchParams({ select: "*", mode: `eq.${mode}`, position: "eq.1", order: "created_at.desc", limit: "1000" });
   const since = periodStart(period);
   if (since) q.set("created_at", `gte.${since.toISOString()}`);
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/scores?${q}`, { headers: headers() });
+  const res = await getRows(`${SUPABASE_URL}/rest/v1/scores?${q}`);
   if (!res.ok) throw new Error(`leaderboard ${res.status}`);
   return (await res.json()) as Entry[];
 }
@@ -158,7 +172,8 @@ export async function fetchPersonSeasons(mode: Mode, row: Pick<BoardRow, "key" |
   const get = async (filter: [string, string]) => {
     const q = new URLSearchParams({ select: "*", mode: `eq.${mode}`, order: "created_at.asc", limit: "1000" });
     q.set(...filter);
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/scores?${q}`, { headers: headers() });
+    await Promise.allSettled([...inFlight]);
+    const res = await getRows(`${SUPABASE_URL}/rest/v1/scores?${q}`);
     if (!res.ok) throw Object.assign(new Error(`leaderboard ${res.status}`), { status: res.status });
     return (await res.json()) as Entry[];
   };
@@ -224,7 +239,11 @@ async function post(body: Body): Promise<boolean> {
 }
 
 /** Add a finished season. If it can't be sent now, it's kept and sent next time. */
-export async function submitEntry(name: string, run: RunCode, result: SeasonResult): Promise<boolean> {
+export function submitEntry(name: string, run: RunCode, result: SeasonResult): Promise<boolean> {
+  return track(sendEntry(name, run, result));
+}
+
+async function sendEntry(name: string, run: RunCode, result: SeasonResult): Promise<boolean> {
   const body = entryBody(name, run, result);
   try {
     if (await post(body)) return true;
@@ -236,7 +255,11 @@ export async function submitEntry(name: string, run: RunCode, result: SeasonResu
 }
 
 /** Send any seasons that couldn't be sent earlier. */
-export async function flushPending(): Promise<void> {
+export function flushPending(): Promise<void> {
+  return track(sendPending());
+}
+
+async function sendPending(): Promise<void> {
   const pending = readPending();
   if (pending.length === 0) return;
   const left: Body[] = [];

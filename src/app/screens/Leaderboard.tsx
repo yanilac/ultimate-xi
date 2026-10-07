@@ -22,6 +22,13 @@ export function Leaderboard({
   const [error, setError] = useState(false);
   const [openKey, setOpenKey] = useState<string | null>(null);
   const me = `p:${playerId()}`;
+  // Bumped when you come back to the page, so the board is never stale.
+  const [refresh, setRefresh] = useState(0);
+  useEffect(() => {
+    const onShow = () => document.visibilityState === "visible" && setRefresh((n) => n + 1);
+    document.addEventListener("visibilitychange", onShow);
+    return () => document.removeEventListener("visibilitychange", onShow);
+  }, []);
 
   useEffect(() => {
     if (!seasons) return;
@@ -36,8 +43,7 @@ export function Leaderboard({
     return () => {
       live = false;
     };
-  }, [mode, period, seasons]);
-
+  }, [mode, period, seasons, refresh]);
 
   return (
     <main className="screen board">
