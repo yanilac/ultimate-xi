@@ -30,7 +30,7 @@ export function MiniTable({ rows, limit }: { rows: Row[]; limit?: number }) {
   return (
     <table className="table">
       <thead>
-        <tr><th>#</th><th className="table__team">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr>
+        <tr><th></th><th className="table__team">Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr>
       </thead>
       <tbody>
         {shown.map((r) => (
@@ -55,8 +55,11 @@ function UserMatch({ result, match, week }: { result: SeasonResult; match: Match
   const otherGoals = match.home === user ? match.awayGoals : match.homeGoals;
   const outcome = userGoals > otherGoals ? "win" : userGoals === otherGoals ? "draw" : "loss";
   return (
-    <div className={`match match--${outcome}`}>
-      <p className="eyebrow">Matchday {week}</p>
+    <div className="match">
+      <div className="match__head">
+        <span className="meta">Matchday {week}</span>
+        <span className={`pill pill--${outcome}`}>{outcome === "win" ? "Win" : outcome === "draw" ? "Draw" : "Loss"}</span>
+      </div>
       <div className="match__score">
         <span className="match__team">{home}</span>
         <span className="match__goals">{match.homeGoals} – {match.awayGoals}</span>
@@ -99,15 +102,18 @@ export function Season({ result, onDone }: { result: SeasonResult; onDone: () =>
   return (
     <main className="screen season">
       <header className="topbar">
-        <span className="eyebrow">{leagueTitle(result.season)}</span>
-        <span className="topbar__round">Week {week}/{total}</span>
+        <h1>{leagueTitle(result.season)}</h1>
+        <span className="topbar__round">Week {week} of {total}</span>
       </header>
       <div className="record">
-        <span><b>{user.w}</b>W</span><span><b>{user.d}</b>D</span><span><b>{user.l}</b>L</span>
-        <span className="record__pos">{ordinal(rows.indexOf(user) + 1)}</span>
+        <span><b>{user.w}</b>Won</span><span><b>{user.d}</b>Drawn</span><span><b>{user.l}</b>Lost</span>
+        <span className="record__pos"><b>{ordinal(rows.indexOf(user) + 1)}</b>Position</span>
       </div>
       {match ? <UserMatch result={result} match={match} week={week} /> : (
-        <div className="match"><p className="eyebrow">Kick-off</p><p>Your XI replaces {result.replaced}.</p></div>
+        <div className="match">
+          <div className="match__head"><span className="meta">Kick-off</span></div>
+          <p>Your XI replaces {result.replaced}.</p>
+        </div>
       )}
       <MiniTable rows={rows} limit={6} />
       <div className="season__controls">

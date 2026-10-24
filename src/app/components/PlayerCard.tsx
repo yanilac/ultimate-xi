@@ -23,8 +23,10 @@ export function PlayerCard({
     .join(" ");
   return (
     <button className={classes} onClick={onClick} disabled={disabled} type="button">
-      <span className="card__rating">{player.rating}</span>
-      <span className="card__pos">{player.positions.join(" · ")}</span>
+      <span className="card__top">
+        <span className="card__rating">{player.rating}</span>
+        <span className="card__pos">{player.positions.join(" · ")}</span>
+      </span>
       <span className="card__name">{player.name}</span>
       <span className="card__club">
         {player.icon || !player.club ? (

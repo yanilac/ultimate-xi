@@ -15,9 +15,8 @@ export function FormationPicker({ onPick, onBack }: { onPick: (name: string) => 
   return (
     <main className="screen">
       <header className="topbar">
-        <button className="btn btn--ghost btn--small" onClick={onBack}>Back</button>
-        <h2>Pick a formation</h2>
-        <span />
+        <h1>Pick a formation</h1>
+        <button className="btn btn--text btn--small" onClick={onBack}>Back</button>
       </header>
       <div className="formations">
         {FORMATIONS.map((f) => (

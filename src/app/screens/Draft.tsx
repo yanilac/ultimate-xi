@@ -115,12 +115,12 @@ export function Draft({
   return (
     <main className="screen draft">
       <header className="topbar">
-        <button className="btn btn--ghost btn--small" onClick={onQuit}>Quit</button>
         <div className="topbar__stats">
           <span><b>{Math.round(chem.teamRating || 0)}</b> rating</span>
           <span><b>{chem.teamChem}</b> chem</span>
         </div>
-        <span className="topbar__round">{complete ? "XI done" : `Round ${round}/11`}</span>
+        <span className="topbar__round">{complete ? "XI done" : `Round ${round} of 11`}</span>
+        <button className="btn btn--text btn--small" onClick={onQuit}>Quit</button>
       </header>
 
       <Pitch

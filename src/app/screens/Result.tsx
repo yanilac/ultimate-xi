@@ -75,13 +75,15 @@ export function Result({
 
   return (
     <main className="screen result">
-      <p className="eyebrow">{leagueTitle(result.season)}</p>
-      <h1 className="result__record">{recordText(result)}</h1>
-      <p className="result__headline">{headline}</p>
-      {streakLine && <p className={user.position === 1 ? "result__streak result__streak--win" : "result__streak"}>{streakLine}</p>}
-      <p className="result__pos">
-        Finished {ordinal(user.position)} with {user.row.points} points · {user.row.goalsFor} scored, {user.row.goalsAgainst} conceded
-      </p>
+      <div className="result__top">
+        <p className="meta">{leagueTitle(result.season)}</p>
+        <h1 className="result__record">{recordText(result)}</h1>
+        <p className="result__headline">{headline}</p>
+        <p className="result__pos">
+          Finished {ordinal(user.position)} with {user.row.points} points · {user.row.goalsFor} scored, {user.row.goalsAgainst} conceded
+        </p>
+        {streakLine && <p className={user.position === 1 ? "result__streak result__streak--win" : "result__streak"}>{streakLine}</p>}
+      </div>
       {user.badges.length > 0 && (
         <div className="badges">
           {user.badges.map((b) => <span key={b} className="badge">{BADGE_LABEL[b]}</span>)}
@@ -96,16 +98,16 @@ export function Result({
           const teamName = (t: number) => (t === user.team ? "Your XI" : result.teams[t]!.name);
           return (
             <>
-              <Award icon="⭐" label="Player of the season" name={user.playerOfSeason.name} sub="Your XI" yours />
-              {boot && <Award icon="👟" label="Golden Boot" name={boot.name} sub={`${teamName(boot.team)} · ${boot.goals} goals`} yours={bootIsYours} />}
+              <Award label="Player of the season" name={user.playerOfSeason.name} sub="Your XI" yours />
+              {boot && <Award label="Golden Boot" name={boot.name} sub={`${teamName(boot.team)} · ${boot.goals} goals`} yours={bootIsYours} />}
               {assistKing && (
-                <Award icon="🎯" label="Most assists" name={assistKing.name} sub={`${teamName(assistKing.team)} · ${assistKing.assists} assists`} yours={assistKingIsYours} />
+                <Award label="Most assists" name={assistKing.name} sub={`${teamName(assistKing.team)} · ${assistKing.assists} assists`} yours={assistKingIsYours} />
               )}
               {user.topScorer && !bootIsYours && (
-                <Award icon="⚽" label="Your top scorer" name={user.topScorer.name} sub={`${user.topScorer.goals} goals`} yours />
+                <Award label="Your top scorer" name={user.topScorer.name} sub={`${user.topScorer.goals} goals`} yours />
               )}
               {user.topAssister && !assistKingIsYours && (
-                <Award icon="🅰️" label="Your top assister" name={user.topAssister.name} sub={`${user.topAssister.assists} assists`} yours />
+                <Award label="Your top assister" name={user.topAssister.name} sub={`${user.topAssister.assists} assists`} yours />
               )}
             </>
           );
@@ -117,19 +119,18 @@ export function Result({
           <button className="btn btn--primary btn--big" onClick={onAgain}>Build another XI</button>
           <button className="btn btn--ghost btn--big" onClick={share}>Share result</button>
         </div>
-        <button className="btn btn--ghost" onClick={onHome}>🏠 Home</button>
+        <button className="btn btn--text" onClick={onHome}>Home</button>
       </div>
       {status && <p className="hint" role="status">{status}</p>}
-      <h3>Final table</h3>
+      <h2>Final table</h2>
       <MiniTable rows={rows} />
     </main>
   );
 }
 
-function Award({ icon, label, name, sub, yours }: { icon: string; label: string; name: string; sub: string; yours?: boolean }) {
+function Award({ label, name, sub, yours }: { label: string; name: string; sub: string; yours?: boolean }) {
   return (
     <div className={yours ? "award award--yours" : "award"}>
-      <span className="award__icon" aria-hidden>{icon}</span>
       <span className="award__label">{label}</span>
       <span className="award__name">{name}</span>
       <span className="award__sub">{sub}</span>

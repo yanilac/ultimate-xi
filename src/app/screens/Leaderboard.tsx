@@ -48,8 +48,8 @@ export function Leaderboard({
   return (
     <main className="screen board">
       <div className="board__top">
-        <button className="btn btn--ghost btn--small" onClick={onBack}>Back</button>
         <h1 className="board__title">Leaderboard</h1>
+        <button className="btn btn--text btn--small" onClick={onBack}>Back</button>
       </div>
       <div className="tabs" role="tablist" aria-label="Mode">
         {MODES.map((m) => (
@@ -70,7 +70,7 @@ export function Leaderboard({
       ) : !rows ? (
         <p className="hint">Loading…</p>
       ) : rows.length === 0 ? (
-        <p className="hint">No titles won {period === "today" ? "today" : period === "week" ? "this week" : "yet"}. Be the first.</p>
+        <p className="hint board__empty">No titles won {period === "today" ? "today" : period === "week" ? "this week" : "yet"}. Be the first.</p>
       ) : (
         <ol className="board__list">
           {rows.map((row, i) => (
@@ -118,7 +118,6 @@ function PersonRecord({ mode, row, seasons }: { mode: Mode; row: BoardRow; seaso
   return (
     <div className="board__record career-strip" aria-label={`${row.name}'s record`}>
       <span className="career-strip__item">
-        <span className="career-strip__trophy" aria-hidden>🏆</span>
         <b>{record.titles}</b> {record.titles === 1 ? "title" : "titles"}
       </span>
       <span className={record.streak > 0 ? "career-strip__item career-strip__item--hot" : "career-strip__item"}>

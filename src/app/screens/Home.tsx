@@ -51,8 +51,8 @@ export function Home({
   return (
     <main className="screen home">
       <div className="home__hero">
-        <h1 className="home__title">Ultimate XI</h1>
-        <p className="home__tag">Draft a team, play a full league season. Can you go unbeaten?</p>
+        <h1>Draft an XI, play a season</h1>
+        <p className="home__tag">Eleven spins, one squad, a full league season. Can you go unbeaten?</p>
       </div>
       <div className="modes" role="radiogroup" aria-label="Game mode">
         {MODES.map((m) => (
@@ -64,6 +64,7 @@ export function Home({
             className={m.id === mode ? "mode mode--on" : "mode"}
             onClick={() => onMode(m.id)}
           >
+            <span className="mode__dot" aria-hidden />
             <span className="mode__name">{m.name}</span>
             <span className="mode__blurb">{m.blurb}</span>
           </button>
@@ -74,17 +75,22 @@ export function Home({
       </button>
       {last && (
         <p className="home__last">
-          Last time: {last.record} and finished {ordinal(last.position)} in {last.season.replace("-", "/")}
+          <span>Last season, {last.season.replace("-", "/")}</span>
+          <span>
+            <b>{last.record}</b> · {ordinal(last.position)}
+          </span>
         </p>
       )}
-      {onBoard && (
-        <button className="btn btn--ghost" onClick={onBoard}>
-          🏆 Leaderboard
+      <div className="home__more">
+        {onBoard && (
+          <button className="btn btn--ghost" onClick={onBoard}>
+            Leaderboard
+          </button>
+        )}
+        <button className="btn btn--ghost" onClick={() => setHelp(!help)} aria-expanded={help}>
+          {help ? "Hide how to play" : "How to play"}
         </button>
-      )}
-      <button className="btn btn--ghost" onClick={() => setHelp(!help)}>
-        {help ? "Hide how to play" : "How to play"}
-      </button>
+      </div>
       {help && <HowToPlay />}
       <p className="version">
         v{__APP_VERSION__} · {__APP_COMMIT__}
