@@ -81,7 +81,10 @@ export function App() {
     else setError("That replay link doesn't match the current player data.");
   }, [seasons]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => window.scrollTo(0, 0), [screen.name]);
+  // Braces matter: newer Chrome returns a Promise from scrollTo, and React would call it as a cleanup.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [screen.name]);
 
   const link = useMemo(() => ("run" in screen ? shareUrl(screen.run) : ""), [screen]);
 
